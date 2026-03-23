@@ -5,6 +5,6 @@ export type CategoryDocument = HydratedDocument<Category>;
 
 @Schema({ timestamps: true })
 export class Category {
-  @Prop({ required: true, unique: true }) category_name: string | undefined;
+  @Prop({ required: true, unique: true }) category_name!: string;
 }
 export const CategorySchema = SchemaFactory.createForClass(Category);

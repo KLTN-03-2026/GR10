@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Category, CategoryDocument } from './entities/category.entity';
+import { ApiResponse } from '@/common/dto/api-response.dto';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(
+    @InjectModel(Category.name)
+    private readonly categoriesModel: Model<CategoryDocument>,
+  ) {}
+
+  async create(
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<ApiResponse<Category>> {
+    const existing = await this.categoriesModel
+      .findOne({ categoryName: createCategoryDto.category_name })
+      .lean();
+
+    if (existing) {
+      throw new BadRequestException('Category đã tồn tại');
+    }
+
+    const newCategory = await this.categoriesModel.create(createCategoryDto);
+
+    return new ApiResponse('Tạo thể loại thành công', newCategory.toObject());
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll(): Promise<ApiResponse<Category[]>> {
+    const categories = await this.categoriesModel.find().lean().exec();
+
+    return new ApiResponse('Danh sách thể loại', categories);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string): Promise<ApiResponse<Category>> {
+    const category = await this.categoriesModel.findById(id).lean().exec();
+
+    if (!category) {
+      throw new NotFoundException('Không tìm thấy category');
+    }
+
+    return new ApiResponse('Lấy thể loại thành công', category);
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<ApiResponse<Category>> {
+    const updated = await this.categoriesModel.findByIdAndUpdate(
+      id,
+      updateCategoryDto,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!updated) {
+      throw new NotFoundException('Không tìm thấy category');
+    }
+
+    return new ApiResponse('Cập nhật thành công', updated.toObject());
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: string): Promise<ApiResponse<null>> {
+    const deleted = await this.categoriesModel.findByIdAndDelete(id);
+
+    if (!deleted) {
+      throw new NotFoundException('Không tìm thấy category');
+    }
+
+    return new ApiResponse('Xóa thành công', null);
   }
 }
