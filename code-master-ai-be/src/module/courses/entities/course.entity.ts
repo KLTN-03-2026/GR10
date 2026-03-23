@@ -1,16 +1,37 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
-
-export type CourseDocument = HydratedDocument<Course>;
+import { Document } from 'mongoose';
+import { CourseLevel } from '../enums/courseLevel.enum';
+import { CourseStatus } from '../enums/courseStatus.enum';
+import { Types } from 'mongoose';
+export type CourseDocument = Course & Document;
 
 @Schema({ timestamps: true })
 export class Course {
-  @Prop({ required: true }) title: string | undefined;
-  @Prop() description: string | undefined;
-  @Prop({ required: true }) price: number | undefined;
-  @Prop() level: string | undefined;
-  @Prop() thumbnail: string | undefined;
-  @Prop({ default: 'active' }) status: string | undefined;
-  @Prop({ type: Types.ObjectId, ref: 'Category', required: true }) category_id: Types.ObjectId | undefined;
+  @Prop({ required: true, trim: true })
+  title: string;
+
+  @Prop({ default: '' })
+  description: string;
+
+  @Prop({ required: true, min: 0 })
+  price: number;
+
+  @Prop({
+    default: CourseLevel.BEGINNER,
+  })
+  level: CourseLevel;
+
+  @Prop()
+  thumbnail: string;
+
+  @Prop({
+    default: CourseStatus.ACTIVE,
+  })
+  status: CourseStatus;
+
+  //FK -> Category
+  @Prop({ type: Types.ObjectId, ref: 'Category' })
+  category: Types.ObjectId;
 }
+
 export const CourseSchema = SchemaFactory.createForClass(Course);
