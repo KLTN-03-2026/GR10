@@ -1,34 +1,65 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
+
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { UpdatePaymentStatusDto } from './dto/update-payment.dto';
+
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
+import { ParseObjectIdPipe } from '@/common/pipes/parse-object-id.pipe';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentsService.create(createPaymentDto);
+  @UseGuards(JwtAuthGuard)
+  @Post('create')
+  createPayment(@CurrentUser() user: any, @Body() dto: CreatePaymentDto) {
+    return this.paymentsService.createPayment(user._id, dto);
   }
 
-  @Get()
-  findAll() {
-    return this.paymentsService.findAll();
+  @UseGuards(JwtAuthGuard)
+  @Get('my-payments')
+  getMyPayments(@CurrentUser() user: any) {
+    return this.paymentsService.getMyPayments(user._id);
   }
 
+  @Get('vnpay-callback')
+  async vnpayCallback(@Query() query: any, @Res() res: Response) {
+    const { vnp_ResponseCode, vnp_TxnRef } = query;
+
+    if (vnp_ResponseCode !== '00') {
+      return res.redirect('http://localhost:3000/payment-fail');
+    }
+
+    const userId = vnp_TxnRef.split('_')[0];
+    await this.paymentsService.markPaymentPaidAndClearCart(userId);
+    return res.redirect(`http://localhost:3000/payment-success/${userId}`);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentsService.findOne(+id);
+  getPaymentById(@Param('id', ParseObjectIdPipe) id: string) {
+    return this.paymentsService.getPaymentById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentsService.update(+id, updatePaymentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  updatePaymentStatus(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() dto: UpdatePaymentStatusDto,
+  ) {
+    return this.paymentsService.updatePaymentStatus(id, dto);
   }
 }
