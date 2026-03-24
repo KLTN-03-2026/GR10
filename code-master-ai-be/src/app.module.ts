@@ -24,6 +24,10 @@ import { ResultsModule } from './module/results/results.module';
 import { RolesModule } from './module/roles/roles.module';
 import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
+import { BlogsModule } from './module/blogs/blogs.module';
+
+
+
 
 @Module({
   imports: [
@@ -86,7 +90,9 @@ import { TestcasesModule } from './module/testcases/testcases.module';
       inject: [ConfigService],
     }),
 
-    AuthModule
+    AuthModule,
+
+    BlogsModule
   ],
   controllers: [AppController],
   providers: [AppService],
