@@ -1,26 +1,217 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+
+import { ApiResponse } from '@/common/dto/api-response.dto';
+import { Cart, CartDocument } from './entities/cart.entity';
+
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { Course, CourseDocument } from '../courses/entities/course.entity';
+import { CartDetail, CartDetailDocument } from '../cart-details/entities/cart-detail.entity';
 
 @Injectable()
 export class CartsService {
-  create(createCartDto: CreateCartDto) {
-    return 'This action adds a new cart';
+  constructor(
+    @InjectModel(Cart.name)
+    private readonly cartModel: Model<CartDocument>,
+
+    @InjectModel(CartDetail.name)
+    private readonly cartDetailModel: Model<CartDetailDocument>,
+
+    @InjectModel(Course.name)
+    private readonly courseModel: Model<CourseDocument>,
+  ) {}
+
+  private async findOrCreateCart(userId: string): Promise<CartDocument> {
+    let cart = await this.cartModel.findOne({
+      user_id: new Types.ObjectId(userId),
+    });
+
+    if (!cart) {
+      cart = await this.cartModel.create({
+        user_id: new Types.ObjectId(userId),
+      });
+    }
+
+    return cart;
   }
 
-  findAll() {
-    return `This action returns all carts`;
+  private async buildCartResponse(cartId: Types.ObjectId | string) {
+    const cart = await this.cartModel
+      .findById(cartId)
+      .populate('user_id')
+      .lean();
+
+    if (!cart) {
+      throw new NotFoundException('Giỏ hàng không tồn tại');
+    }
+
+    const cartDetails = await this.cartDetailModel
+      .find({ cart_id: cart._id })
+      .populate('course_id')
+      .lean();
+
+    const totalPrice = cartDetails.reduce((sum, item) => sum + item.price, 0);
+
+    return {
+      ...cart,
+      items: cartDetails,
+      totalPrice,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
+  async createCart(
+    userId: string,
+    createCartDto: CreateCartDto,
+  ): Promise<ApiResponse<any>> {
+    const { courseId } = createCartDto;
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('userId không hợp lệ');
+    }
+
+    if (!Types.ObjectId.isValid(courseId)) {
+      throw new BadRequestException('courseId không hợp lệ');
+    }
+
+    const course = await this.courseModel.findById(courseId).lean();
+    if (!course) {
+      throw new NotFoundException('Khóa học không tồn tại');
+    }
+
+    const cart = await this.findOrCreateCart(userId);
+
+    const existingCartDetail = await this.cartDetailModel.findOne({
+      cart_id: cart._id,
+      course_id: new Types.ObjectId(courseId),
+    });
+
+    if (existingCartDetail) {
+      throw new BadRequestException('Khóa học đã có trong giỏ hàng');
+    }
+
+    await this.cartDetailModel.create({
+      cart_id: cart._id,
+      course_id: new Types.ObjectId(courseId),
+      price: course.price,
+    });
+
+    const cartResponse = await this.buildCartResponse(cart._id);
+
+    return new ApiResponse('Thêm khóa học vào giỏ hàng thành công', cartResponse);
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
+  async updateCart(
+    userId: string,
+    updateCartDto: UpdateCartDto,
+  ): Promise<ApiResponse<any>> {
+    const { courseId } = updateCartDto;
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('userId không hợp lệ');
+    }
+
+    if (!Types.ObjectId.isValid(courseId)) {
+      throw new BadRequestException('courseId không hợp lệ');
+    }
+
+    const cart = await this.cartModel.findOne({
+      user_id: new Types.ObjectId(userId),
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Giỏ hàng không tồn tại');
+    }
+
+    const cartDetail = await this.cartDetailModel.findOne({
+      cart_id: cart._id,
+      course_id: new Types.ObjectId(courseId),
+    });
+
+    if (!cartDetail) {
+      throw new NotFoundException('Khóa học không tồn tại trong giỏ hàng');
+    }
+
+    const course = await this.courseModel.findById(courseId).lean();
+    if (!course) {
+      throw new NotFoundException('Khóa học không tồn tại');
+    }
+
+    cartDetail.price = course.price;
+    await cartDetail.save();
+
+    const cartResponse = await this.buildCartResponse(cart._id);
+
+    return new ApiResponse('Cập nhật giỏ hàng thành công', cartResponse);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cart`;
+  async deleteProductInCart(
+    userId: string,
+    courseId: string,
+  ): Promise<ApiResponse<any>> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('userId không hợp lệ');
+    }
+
+    if (!Types.ObjectId.isValid(courseId)) {
+      throw new BadRequestException('courseId không hợp lệ');
+    }
+
+    const cart = await this.cartModel.findOne({
+      user_id: new Types.ObjectId(userId),
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Giỏ hàng không tồn tại');
+    }
+
+    const deleted = await this.cartDetailModel.findOneAndDelete({
+      cart_id: cart._id,
+      course_id: new Types.ObjectId(courseId),
+    });
+
+    if (!deleted) {
+      throw new NotFoundException('Khóa học không tồn tại trong giỏ hàng');
+    }
+
+    const cartResponse = await this.buildCartResponse(cart._id);
+
+    return new ApiResponse('Xóa khóa học khỏi giỏ hàng thành công', cartResponse);
+  }
+
+  async getCartInUser(userId: string): Promise<ApiResponse<any>> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('userId không hợp lệ');
+    }
+
+    const cart = await this.findOrCreateCart(userId);
+    const cartResponse = await this.buildCartResponse(cart._id);
+
+    return new ApiResponse('Lấy giỏ hàng thành công', cartResponse);
+  }
+
+  async clearCart(userId: string): Promise<ApiResponse<null>> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('userId không hợp lệ');
+    }
+
+    const cart = await this.cartModel.findOne({
+      user_id: new Types.ObjectId(userId),
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Giỏ hàng không tồn tại');
+    }
+
+    await this.cartDetailModel.deleteMany({
+      cart_id: cart._id,
+    });
+
+    return new ApiResponse('Xóa toàn bộ giỏ hàng thành công', null);
   }
 }

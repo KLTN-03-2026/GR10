@@ -1,34 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+
 import { CartsService } from './carts.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 
+
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { ParseObjectIdPipe } from '@/common/pipes/parse-object-id.pipe';
+import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
+
 @Controller('carts')
+@UseGuards(JwtAuthGuard)
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
-  @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartsService.create(createCartDto);
+  @Post('create')
+  createCart(
+    @CurrentUser() user: any,
+    @Body() dto: CreateCartDto,
+  ) {
+    return this.cartsService.createCart(user._id, dto);
   }
 
-  @Get()
-  findAll() {
-    return this.cartsService.findAll();
+  @Patch('update')
+  updateCart(
+    @CurrentUser() user: any,
+    @Body() dto: UpdateCartDto,
+  ) {
+    return this.cartsService.updateCart(user._id, dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartsService.findOne(+id);
+  @Delete('delete/:courseId')
+  deleteProductInCart(
+    @CurrentUser() user: any,
+    @Param('courseId', ParseObjectIdPipe) courseId: string,
+  ) {
+    return this.cartsService.deleteProductInCart(user._id, courseId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartsService.update(+id, updateCartDto);
+  @Get('get')
+  getCartInUser(@CurrentUser() user: any) {
+    return this.cartsService.getCartInUser(user._id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartsService.remove(+id);
+  @Delete('clear')
+  clearCart(@CurrentUser() user: any) {
+    return this.cartsService.clearCart(user._id);
   }
 }
