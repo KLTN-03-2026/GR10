@@ -47,7 +47,12 @@ export class PaymentsController {
     await this.paymentsService.markPaymentPaidAndClearCartByOrder(userId);
     return res.redirect(`http://localhost:3000/payment-success/${userId}`);
   }
-
+  @Post('momo-ipn')
+  async momoIpn(@Body() body: any) {
+    console.log('MOMO IPN BODY:', body);
+    await this.paymentsService.handleMomoIpn(body);
+    return { message: 'IPN processed successfully' };
+  }
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   getPaymentById(@Param('id', ParseObjectIdPipe) id: string) {

@@ -8,7 +8,8 @@ import { Model, Types } from 'mongoose';
 import { VNPay, ignoreLogger, ProductCode, VnpLocale, dateFormat } from 'vnpay';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
-
+import axios from 'axios';
+import * as crypto from 'crypto';
 import { ApiResponse } from '@/common/dto/api-response.dto';
 
 import { Cart, CartDocument } from '../carts/entities/cart.entity';
@@ -213,11 +214,68 @@ export class PaymentsService {
         paid_at: null,
       });
 
+      const partnerCode = this.configService.get<string>('MOMO_PARTNER_CODE')!;
+      const accessKey = this.configService.get<string>('MOMO_ACCESS_KEY')!;
+      const secretKey = this.configService.get<string>('MOMO_SECRET_KEY')!;
+      const redirectUrl = this.configService.get<string>('MOMO_REDIRECT_URL')!;
+      const ipnUrl = this.configService.get<string>('MOMO_IPN_URL')!;
+      const momoEndpoint = this.configService.get<string>('MOMO_ENDPOINT')!;
+
+      const requestId = `${order._id}_${Date.now()}`;
+      const orderId = order._id.toString();
+      const orderInfo = `Thanh toán đơn hàng ${orderId}`;
+      const requestType = 'payWithMethod';
+      const extraData = '';
+      const autoCapture = true;
+      const lang = 'vi';
+
+      const rawSignature =
+        `accessKey=${accessKey}` +
+        `&amount=${amount}` +
+        `&extraData=${extraData}` +
+        `&ipnUrl=${ipnUrl}` +
+        `&orderId=${orderId}` +
+        `&orderInfo=${orderInfo}` +
+        `&partnerCode=${partnerCode}` +
+        `&redirectUrl=${redirectUrl}` +
+        `&requestId=${requestId}` +
+        `&requestType=${requestType}`;
+
+      const signature = crypto
+        .createHmac('sha256', secretKey)
+        .update(rawSignature)
+        .digest('hex');
+
+      const requestBody = {
+        partnerCode,
+        partnerName: 'CodeMaster AI',
+        storeId: 'CodeMasterAIStore',
+        requestId,
+        amount: amount.toString(),
+        orderId,
+        orderInfo,
+        redirectUrl,
+        ipnUrl,
+        lang,
+        requestType,
+        autoCapture,
+        extraData,
+        signature,
+      };
+
+      const momoResponse = await axios.post(momoEndpoint, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       return new ApiResponse('Tạo đơn hàng và thanh toán MOMO thành công', {
         order,
         orderDetails,
         payment,
-        payment_url: 'Momo URL sẽ build ở đây',
+        payment_url: momoResponse.data.payUrl,
+        qrCodeUrl: momoResponse.data.qrCodeUrl,
+        deeplink: momoResponse.data.deeplink,
         totalPrice: amount,
       });
     }
@@ -338,7 +396,10 @@ export class PaymentsService {
     return enrollmentsToCreate;
   }
 
-  async markPaymentPaidAndClearCartByOrder(orderId: string) {
+  async confirmPaymentSuccessByOrder(
+    orderId: string,
+    paymentMethod: PaymentMethod,
+  ) {
     if (!Types.ObjectId.isValid(orderId)) {
       throw new BadRequestException('orderId không hợp lệ');
     }
@@ -353,16 +414,14 @@ export class PaymentsService {
     const payment = await this.paymentModel.findOneAndUpdate(
       {
         order_id: orderObjectId,
-        payment_method: PaymentMethod.VNPAY,
+        payment_method: paymentMethod,
         payment_status: PaymentStatus.PENDING,
       },
       {
         payment_status: PaymentStatus.PAID,
         paid_at: new Date(),
       },
-      {
-        new: true,
-      },
+      { new: true },
     );
 
     if (!payment) {
@@ -372,11 +431,10 @@ export class PaymentsService {
     await this.orderModel.findByIdAndUpdate(orderObjectId, {
       status: OrderStatus.PAID,
     });
-    await this.createEnrollmentFromOrder(orderObjectId);
-    const cart = await this.cartModel.findOne({
-      user_id: order.user_id,
-    });
 
+    await this.createEnrollmentFromOrder(orderObjectId);
+
+    const cart = await this.cartModel.findOne({ user_id: order.user_id });
     if (cart) {
       await this.cartDetailModel.deleteMany({ cart_id: cart._id });
     }
@@ -390,6 +448,22 @@ export class PaymentsService {
     return { payment, order };
   }
 
+  async markPaymentPaidAndClearCartByOrder(orderId: string) {
+    return this.confirmPaymentSuccessByOrder(orderId, PaymentMethod.VNPAY);
+  }
+  async handleMomoIpn(payload: any) {
+    const { orderId, resultCode, message } = payload;
+
+    console.log('MOMO IPN payload:', payload);
+
+    if (Number(resultCode) !== 0) {
+      throw new BadRequestException(
+        `Thanh toán MoMo thất bại: ${message || 'Unknown error'}`,
+      );
+    }
+
+    return this.confirmPaymentSuccessByOrder(orderId, PaymentMethod.MOMO);
+  }
   private async sendPaymentSuccessEmail(
     userId: string,
     invoiceCode: string,
