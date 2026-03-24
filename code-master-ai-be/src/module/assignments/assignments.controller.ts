@@ -19,16 +19,16 @@ export class AssignmentsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.assignmentsService.findOne(+id);
+    return this.assignmentsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAssignmentDto: UpdateAssignmentDto) {
-    return this.assignmentsService.update(+id, updateAssignmentDto);
+    return this.assignmentsService.update(id, updateAssignmentDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.assignmentsService.remove(+id);
+    return this.assignmentsService.remove(id);
   }
 }

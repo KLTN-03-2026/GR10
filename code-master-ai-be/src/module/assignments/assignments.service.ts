@@ -1,26 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Assignment, SchemaAssginment } from './entities/assignment.entity';
+import { Model } from 'mongoose';
+import { Lesson, LessonDocument } from '../lessons/entities/lesson.entity';
+import { AssignmentType } from './enums/types.enum';
 
 @Injectable()
 export class AssignmentsService {
-  create(createAssignmentDto: CreateAssignmentDto) {
-    return 'This action adds a new assignment';
+  constructor(
+    @InjectModel(Assignment.name)
+    private readonly assigmentModel: Model<SchemaAssginment>,
+
+    @InjectModel(Lesson.name)
+    private readonly lessonModel: Model<LessonDocument>,
+  ) {}
+
+  async create(createAssignmentDto: CreateAssignmentDto): Promise<Assignment> {
+    const lesson = await this.lessonModel.findById(
+      createAssignmentDto.lesson_id,
+    );
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    const assignment = await this.assigmentModel.create({
+      ...createAssignmentDto,
+      type: AssignmentType.QUIZ,
+    });
+    return assignment;
   }
 
-  findAll() {
-    return `This action returns all assignments`;
+  async findAll() {
+    return await this.assigmentModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} assignment`;
+  async findOne(id: string): Promise<Assignment> {
+    const assignment = await this.assigmentModel.findById(id);
+    if (!assignment) throw new NotFoundException('Assignment not exist');
+    return assignment;
   }
 
-  update(id: number, updateAssignmentDto: UpdateAssignmentDto) {
-    return `This action updates a #${id} assignment`;
+  async update(
+    id: string,
+    updateAssignmentDto: UpdateAssignmentDto,
+  ): Promise<Assignment> {
+    const assigment = await this.assigmentModel.findByIdAndUpdate(
+      id,
+      updateAssignmentDto,
+      { new: true },
+    );
+    if(!assigment) throw new NotFoundException('Assignment not found and cant update');
+    return assigment;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} assignment`;
+  async remove(id: string):Promise<void> {
+    const assignment = await this.assigmentModel.findByIdAndDelete(id);
+    if (!assignment) throw new NotFoundException('Assignment not exist');
+
   }
 }
