@@ -34,7 +34,7 @@ const Navbar = () => {
                     </nav>
                 </div>
                 <div className="flex space-x-6">
-                    <div className="flex items-center rounded-full bg-brand-25 space-x-3 px-4 py-2 ">
+                    <div className="flex items-center rounded-full bg-brand-25 space-x-3 px-4 py-2 shadow-md">
                         <SearchOutlined className="cursor-pointer hover:text-brand-400" />
                         <input
                             className="bg-brand-25 rounded-full px-2 outline-none"
@@ -42,7 +42,7 @@ const Navbar = () => {
                             placeholder="Tìm kiếm khóa học..."
                         />
                     </div>
-                    <div className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100">Đăng Nhập</div>
+                    <div className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100 shadow-md">Đăng Nhập</div>
                 </div>
             </div>
         </header>
