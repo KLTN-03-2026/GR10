@@ -6,6 +6,8 @@ import Introduce from "../pages/introduce";
 import Course from "../pages/course";
 import Cart from "../pages/cart";
 import Blog from "../pages/blog";
+import AuthLayout from "../layout/authLayout";
+import AuthForm from "../components/authForm";
 export const router = createBrowserRouter([
 
     {
@@ -33,8 +35,14 @@ export const router = createBrowserRouter([
                 element: <Cart />
             },
         ]
-    }
-
+    }, {
+        path: "/register",
+        element: <AuthLayout><AuthForm type="register" /></AuthLayout>
+    },
+    {
+        path: "/login",
+        element: <AuthLayout><AuthForm type="login" /></AuthLayout>
+    },
 
 
 
