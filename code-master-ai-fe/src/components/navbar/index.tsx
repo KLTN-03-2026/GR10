@@ -42,7 +42,7 @@ const Navbar = () => {
                             placeholder="Tìm kiếm khóa học..."
                         />
                     </div>
-                    <div className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100 shadow-md">Đăng Nhập</div>
+                    <div onClick={() => navigate('/login')} className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100 shadow-md">Đăng Nhập</div>
                 </div>
             </div>
         </header>

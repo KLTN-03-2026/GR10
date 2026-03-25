@@ -8,6 +8,9 @@ import Cart from "../pages/cart";
 import Blog from "../pages/blog";
 import CheckoutPage from "../pages/checkout";
 import PurchaseHistoryContent from "../pages/purchase";
+import AuthLayout from "../layout/authLayout";
+import AuthForm from "../components/authForm";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -42,5 +45,21 @@ export const router = createBrowserRouter([
         element: <PurchaseHistoryContent />,
       },
     ],
+  },
+  {
+    path: "/register",
+    element: (
+      <AuthLayout>
+        <AuthForm type="register" />
+      </AuthLayout>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <AuthLayout>
+        <AuthForm type="login" />
+      </AuthLayout>
+    ),
   },
 ]);
