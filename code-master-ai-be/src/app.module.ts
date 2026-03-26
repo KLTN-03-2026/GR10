@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './module/users/users.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter'
 import { AssignmentsModule } from './module/assignments/assignments.module';
 import { CartDetailsModule } from './module/cart-details/cart-details.module';
 import { CartsModule } from './module/carts/carts.module';
