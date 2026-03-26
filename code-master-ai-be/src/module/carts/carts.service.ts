@@ -12,7 +12,14 @@ import { Cart, CartDocument } from './entities/cart.entity';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { Course, CourseDocument } from '../courses/entities/course.entity';
-import { CartDetail, CartDetailDocument } from '../cart-details/entities/cart-detail.entity';
+import {
+  CartDetail,
+  CartDetailDocument,
+} from '../cart-details/entities/cart-detail.entity';
+import {
+  Enrollment,
+  EnrollmentDocument,
+} from '../enrollments/entities/enrollment.entity';
 
 @Injectable()
 export class CartsService {
@@ -22,7 +29,8 @@ export class CartsService {
 
     @InjectModel(CartDetail.name)
     private readonly cartDetailModel: Model<CartDetailDocument>,
-
+    @InjectModel(Enrollment.name)
+    private readonly enrollmentModel: Model<EnrollmentDocument>,
     @InjectModel(Course.name)
     private readonly courseModel: Model<CourseDocument>,
   ) {}
@@ -83,7 +91,17 @@ export class CartsService {
     if (!course) {
       throw new NotFoundException('Khóa học không tồn tại');
     }
+    const existedEnrollment = await this.enrollmentModel.findOne({
+      user_id: new Types.ObjectId(userId),
+      course_id: new Types.ObjectId(courseId),
+      status: 'active', // nếu muốn chỉ chặn khóa học đang còn hiệu lực
+    });
 
+    if (existedEnrollment) {
+      throw new BadRequestException(
+        'Bạn đã đăng ký khóa học này rồi, không thể thêm vào giỏ hàng',
+      );
+    }
     const cart = await this.findOrCreateCart(userId);
 
     const existingCartDetail = await this.cartDetailModel.findOne({
@@ -103,7 +121,10 @@ export class CartsService {
 
     const cartResponse = await this.buildCartResponse(cart._id);
 
-    return new ApiResponse('Thêm khóa học vào giỏ hàng thành công', cartResponse);
+    return new ApiResponse(
+      'Thêm khóa học vào giỏ hàng thành công',
+      cartResponse,
+    );
   }
 
   async updateCart(
@@ -181,7 +202,10 @@ export class CartsService {
 
     const cartResponse = await this.buildCartResponse(cart._id);
 
-    return new ApiResponse('Xóa khóa học khỏi giỏ hàng thành công', cartResponse);
+    return new ApiResponse(
+      'Xóa khóa học khỏi giỏ hàng thành công',
+      cartResponse,
+    );
   }
 
   async getCartInUser(userId: string): Promise<ApiResponse<any>> {

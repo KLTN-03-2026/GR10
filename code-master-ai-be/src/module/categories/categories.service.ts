@@ -33,11 +33,36 @@ export class CategoriesService {
     return new ApiResponse('Tạo thể loại thành công', newCategory.toObject());
   }
 
-  async findAll(): Promise<ApiResponse<Category[]>> {
-    const categories = await this.categoriesModel.find().lean().exec();
 
-    return new ApiResponse('Danh sách thể loại', categories);
+  async findAll(query: any, current: number, pageSize: number) {
+    // const { filter, sort } = aqp(query);
+    const { default: aqp } = await import('api-query-params');
+    const { filter, sort } = aqp(query);
+    if (filter.current) delete filter.current;
+    if (filter.pageSize) delete filter.pageSize;
+    
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+    
+    // Tối ưu hiệu suất bằng countDocuments
+    const totalItems = await this.categoriesModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const skip = (+current - 1) * (+pageSize);
+    
+    const results = await this.categoriesModel
+      .find(filter)
+      .limit(pageSize)
+      .skip(skip)
+      .select("-password")
+      .sort(sort as any);
+      
+    return { results, totalPages };
   }
+  // async findAll(): Promise<ApiResponse<Category[]>> {
+  //   const categories = await this.categoriesModel.find().lean().exec();
+
+  //   return new ApiResponse('Danh sách thể loại', categories);
+  // }
 
   async findOne(id: string): Promise<ApiResponse<Category>> {
     const category = await this.categoriesModel.findById(id).lean().exec();

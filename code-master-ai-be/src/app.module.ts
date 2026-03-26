@@ -24,6 +24,8 @@ import { ResultsModule } from './module/results/results.module';
 import { RolesModule } from './module/roles/roles.module';
 import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
+import { BlogsModule } from './module/blogs/blogs.module';
+import { StatisticsModule } from './module/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -49,14 +51,14 @@ import { TestcasesModule } from './module/testcases/testcases.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    
+
     // cau hinh ket noi mongodb
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
 
     //  Cấu hình Mailer để sửa lỗi UnknownDependenciesException
@@ -64,7 +66,7 @@ import { TestcasesModule } from './module/testcases/testcases.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: "smtp.gmail.com",
+          host: 'smtp.gmail.com',
           port: 465,
           secure: true,
           auth: {
@@ -77,7 +79,7 @@ import { TestcasesModule } from './module/testcases/testcases.module';
         },
         template: {
           dir: process.cwd() + '/src/mail/template/',
-          adapter: new HandlebarsAdapter(), 
+          adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
           },
@@ -86,7 +88,11 @@ import { TestcasesModule } from './module/testcases/testcases.module';
       inject: [ConfigService],
     }),
 
-    AuthModule
+    AuthModule,
+
+    BlogsModule,
+
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

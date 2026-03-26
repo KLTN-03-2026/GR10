@@ -11,6 +11,10 @@ import {
   CartDetail,
   CartDetailSchema,
 } from '../cart-details/entities/cart-detail.entity';
+import {
+  Enrollment,
+  EnrollmentSchema,
+} from '../enrollments/entities/enrollment.entity';
 
 @Module({
   imports: [
@@ -18,6 +22,7 @@ import {
       { name: Cart.name, schema: CartSchema },
       { name: CartDetail.name, schema: CartDetailSchema },
       { name: Course.name, schema: CourseSchema },
+      { name: Enrollment.name, schema: EnrollmentSchema },
     ]),
   ],
   controllers: [CartsController],
