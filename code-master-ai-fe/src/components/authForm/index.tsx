@@ -11,7 +11,7 @@ import {
 import { PostOTP, PostRegister } from "../../api/auth";
 import { PostLogin } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-import { Modal } from 'antd';
+import { Modal } from "antd";
 import { get } from "node:http";
 type AuthFormProps = {
   type?: "login" | "register";
@@ -43,8 +43,18 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
 
   const handleOk = async () => {
     setIsModalOpen(false);
-    await PostOTP({ _id: userData?._id || "", code: OTP });
+    // console.log("id:"+ userData?._id+"code:"+OTP)
+    try {
+      await PostOTP({ _id: userData?._id || "", code: OTP });
+      setTab("login")
+    } catch (error) {
+      console.log(error);
+    }
+    setOTP("");
+    
   };
+
+  
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -76,7 +86,6 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
         const data = await PostRegister(formRegisterData);
         setUserData(data);
         showModal();
-        navigate("/login");
       } catch (error) {
         console.error(error);
       }
@@ -91,10 +100,11 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
           <button
             type="button"
             onClick={() => setTab("login")}
-            className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${tab === "login"
-              ? "bg-white text-brand-700 shadow-sm"
-              : "text-slate-500"
-              }`}
+            className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${
+              tab === "login"
+                ? "bg-white text-brand-700 shadow-sm"
+                : "text-slate-500"
+            }`}
           >
             Đăng nhập
           </button>
@@ -102,10 +112,11 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
           <button
             type="button"
             onClick={() => setTab("register")}
-            className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${tab === "register"
-              ? "bg-white text-brand-700 shadow-sm"
-              : "text-slate-500"
-              }`}
+            className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${
+              tab === "register"
+                ? "bg-white text-brand-700 shadow-sm"
+                : "text-slate-500"
+            }`}
           >
             Đăng ký
           </button>
@@ -254,7 +265,6 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
         <div className="grid grid-cols-2 gap-2.5">
           <button
             type="button"
-            
             className="flex h-10 items-center justify-center gap-2 rounded-[12px] border border-brand-100 bg-white text-sm font-semibold text-slate-700 transition hover:bg-brand-25"
           >
             <img
@@ -303,10 +313,12 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
         okText="Xác nhận"
         cancelText="Hủy"
         okButtonProps={{
-          className: "!bg-brand-600 hover:!bg-brand-700 !border-none !rounded-xl",
+          className:
+            "!bg-brand-600 hover:!bg-brand-700 !border-none !rounded-xl",
         }}
         cancelButtonProps={{
-          className: "!rounded-xl !border-brand-200 hover:!text-brand-700 hover:!bg-brand-25",
+          className:
+            "!rounded-xl !border-brand-200 hover:!text-brand-700 hover:!bg-brand-25",
         }}
       >
         <Input

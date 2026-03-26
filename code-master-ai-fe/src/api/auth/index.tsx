@@ -59,10 +59,11 @@ export const PostLogin = async ({
   }
 };
 
-export const PostOTP = async ({_id , code}: {_id: string; code: string}) => {
-  const Url = "http://localhost:3000/api/v1//auth/check-code";
+export const PostOTP = async ({ _id, code }: { _id: string; code: string }) => {
+  console.log("id :" + _id + "code: " + code);
+  const Url = "http://localhost:3000/api/v1/auth/check-code";
   try {
-    const res = await axios.post(Url, { id: _id, code });
+    const res = await axios.post(Url, { _id, code });
     console.log("THANH CONG: ", res.data);
     showMessage("success", "Đăng ký thành công!");
     return res.data;
