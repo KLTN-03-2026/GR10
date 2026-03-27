@@ -10,6 +10,7 @@ import CheckoutPage from "../pages/checkout";
 import PurchaseHistoryContent from "../pages/purchase";
 import AuthLayout from "../layout/authLayout";
 import AuthForm from "../components/authForm";
+import CourseDetailPage from "../pages/courseDetail";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: "/course",
         element: <Course />,
+      },
+      {
+        path: "/course/:id",
+        element: <CourseDetailPage />,
       },
       {
         path: "/cart",

@@ -12,7 +12,7 @@ import { PostOTP, PostRegister } from "../../api/auth";
 import { PostLogin } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "antd";
-import { get } from "node:http";
+import { useUserInfo } from "../../store/user";
 type AuthFormProps = {
   type?: "login" | "register";
 };
@@ -21,6 +21,7 @@ export interface IUser {
   email: string;
 }
 export default function AuthForm({ type = "login" }: AuthFormProps) {
+  const { setUserInfo } = useUserInfo();
   const [tab, setTab] = useState<"login" | "register">(type);
   const navigate = useNavigate();
   const [OTP, setOTP] = useState("");
@@ -76,6 +77,8 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
         const data = await PostLogin(formLoginData);
         if (data.access_token) {
           localStorage.setItem("token", data.access_token);
+          setUserInfo(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
         }
         navigate("/");
       } catch (error) {

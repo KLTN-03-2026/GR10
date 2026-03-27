@@ -3,12 +3,14 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CodeOutlined, SearchOutlined } from "@ant-design/icons";
-
+import { useUserInfo } from "../../store/user";
+import { UserOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [navSelected, setNavSelected] = useState(location.pathname);
-
+    const { userInfo } = useUserInfo();
     useEffect(() => {
         setNavSelected(location.pathname);
     }, [location]);
@@ -30,7 +32,7 @@ const Navbar = () => {
                         <NavLink to="/introduce" className={`font-medium text-brand-700 cursor-pointer transition-colors whitespace-nowrap hover:text-brand-400 ${navSelected === '/introduce' ? 'border-b-2 border-brand-700' : ''}`}>Giới thiệu</NavLink>
                         <NavLink to="/blog" className={`font-medium text-brand-700 cursor-pointer transition-colors whitespace-nowrap hover:text-brand-400 ${navSelected === '/blog' ? 'border-b-2 border-brand-700' : ''}`}>Tin tức</NavLink>
                         <NavLink to="/course" className={`font-medium text-brand-700 cursor-pointer transition-colors whitespace-nowrap hover:text-brand-400 ${navSelected === '/course' ? 'border-b-2 border-brand-700' : ''}`}>Khóa học</NavLink>
-                        <NavLink to="/cart" className={`font-medium text-brand-700 cursor-pointer transition-colors whitespace-nowrap hover:text-brand-400 ${navSelected === '/cart' ? 'border-b-2 border-brand-700' : ''}`}>Giỏ hàng</NavLink>
+                        {/* <NavLink to="/cart" className={`font-medium text-brand-700 cursor-pointer transition-colors whitespace-nowrap hover:text-brand-400 ${navSelected === '/cart' ? 'border-b-2 border-brand-700' : ''}`}>Giỏ hàng</NavLink> */}
                     </nav>
                 </div>
                 <div className="flex space-x-6">
@@ -42,7 +44,25 @@ const Navbar = () => {
                             placeholder="Tìm kiếm khóa học..."
                         />
                     </div>
-                    <div onClick={() => navigate('/login')} className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100 shadow-md">Đăng Nhập</div>
+
+                    {userInfo && (
+                        <div className="flex items-center space-x-3">
+                            <ShoppingCartOutlined onClick={() => navigate('/cart')} className="text-2xl text-brand-700 cursor-pointer hover:text-brand-400 " />
+                        </div>
+                    )}
+                    {userInfo ? (
+                        <div>
+                            <div className="flex items-center space-x-3">
+                                <div className="text-lg w-10 h-10 rounded-full bg-brand-600 font-medium text-white cursor-pointer flex items-center justify-center ">
+                                    {<UserOutlined />}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div onClick={() => navigate('/login')} className="rounded-full bg-brand-600 text-white px-5 py-2 cursor-pointer font-semibold hover:text-brand-100 shadow-md">
+                            Đăng Nhập
+                        </div>
+                    )}
                 </div>
             </div>
         </header>

@@ -1,6 +1,10 @@
 import axios from "axios";
 import { showMessage } from "../../utils/showMessages";
+<<<<<<< HEAD
 const API_URL = "https://codeaimaster-kltn-2026-10.onrender.com/api/v1";
+=======
+export const API_URL = "https://codeaimaster-kltn-2026-10.onrender.com/api/v1";
+>>>>>>> 74647684e8026bfbb105c6f12756baf2826591f0
 interface PostRegisterProps {
   fullname: string;
   email: string;
@@ -32,11 +36,11 @@ export const PostRegister = async ({
       password,
     });
     console.log("THANH CONG: ", res.data);
-    showMessage("success", "Đăng kí thành công!");
+    // showMessage("success", "Đăng kí thành công!");
     return res.data;
   } catch (err) {
     console.log("THAT BAI: ", err);
-    showMessage("error", "Đăng kí thất bại!");
+    // showMessage("error", "Đăng kí thất bại!");
     throw err;
   }
 };
@@ -52,9 +56,13 @@ export const PostLogin = async ({
       password,
     });
     console.log("THANH CONG: ", res.data);
+    showMessage("success", "Đăng nhập thành công!");
+
     return res.data;
   } catch (err) {
     console.log("THAT BAI: ", err);
+    showMessage("error", "Đăng nhập thất bại!");
+
     throw err;
   }
 };
