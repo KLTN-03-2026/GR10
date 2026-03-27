@@ -36,7 +36,7 @@ export class CoursesService {
   }
 
   async findAll(): Promise<ApiResponse<Course[]>> {
-    const courses = await this.courseModel.find().populate("category", "name").lean().exec()
+    const courses = await this.courseModel.find().populate("category", "category_name").lean().exec()
     return new ApiResponse( "Danh sách khóa học",courses);
   }
 
