@@ -10,6 +10,7 @@ import { CourseStatus } from './enums/courseStatus.enum';
 import { NotFoundException } from '@nestjs/common';
 import { Category } from '../categories/entities/category.entity';
 import { CategoryDocument } from '../categories/entities/category.entity';
+import { ApiResponse } from '@/common/dto/api-response.dto';
 
 @Injectable()
 export class CoursesService {
@@ -34,8 +35,9 @@ export class CoursesService {
     return createCourse;
   }
 
-  async findAll(): Promise<Course[]> {
-    return this.courseModel.find().lean().exec();
+  async findAll(): Promise<ApiResponse<Course[]>> {
+    const courses = await this.courseModel.find().populate("category", "name").lean().exec()
+    return new ApiResponse( "Danh sách khóa học",courses);
   }
 
   async findOne(id: string): Promise<Course> {
