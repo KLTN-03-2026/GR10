@@ -36,6 +36,7 @@ const Navbar = () => {
                 <div onClick={() => {
                     clearUserInfo();
                     navigate('/login');
+                    localStorage.clear();
                 }} className="font-medium text-brand-600 flex gap-3">{<LogoutOutlined/>}Đăng xuất</div>
             ),
         },
