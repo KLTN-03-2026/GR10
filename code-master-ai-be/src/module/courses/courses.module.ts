@@ -5,10 +5,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CourseSchema } from './entities/course.entity';
 import { Course } from './entities/course.entity';
 import { CategoriesModule } from '../categories/categories.module';
+import { Lesson, LessonSchema } from '../lessons/entities/lesson.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
+    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }, {name: Lesson.name, schema: LessonSchema }]),
     CategoriesModule,
   ],
   controllers: [CoursesController],
