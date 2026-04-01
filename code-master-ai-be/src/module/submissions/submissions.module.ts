@@ -7,10 +7,12 @@ import { Submission, SubmissionSchema } from './entities/submission.entity';
 
 import { CodeAssignment, CodeAssignmentSchema } from '../code-assignments/entities/code-assignment.entity'; 
 import { TestCase, TestCaseSchema } from '../testcases/entities/testcase.entity';
+import { AiAssistantModule } from '@/ai-assistant/ai-assistant.module';
 
 @Module({
   imports: [
     HttpModule,
+    AiAssistantModule,
     //  3 bảng cần thiết cho luồng chấm bài
     MongooseModule.forFeature([
       { name: Submission.name, schema: SubmissionSchema },

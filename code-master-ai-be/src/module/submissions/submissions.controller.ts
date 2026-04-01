@@ -24,6 +24,18 @@ export class SubmissionsController {
       sourceCode,
     );
   }
+  //API gia su AI phan tich loi code
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/ask-ai-tutor')
+  async askAiTutor(@Param('id') submissionId: string){
+    return await this.submissionsService.requestAiTutor(submissionId);
+  }
+  // API Đề xuất bài tập cho User
+  @UseGuards(JwtAuthGuard) // Bắt buộc phải có Token đăng nhập
+  @Get('recommendations/:userId')
+  async getRecommendations(@Param('userId') userId: string) {
+    return await this.submissionsService.getRecommendationsForUser(userId);
+  }
 
   // @Post()
   // create(@Body() createSubmissionDto: CreateSubmissionDto) {

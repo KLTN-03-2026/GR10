@@ -24,6 +24,7 @@ import { ResultsModule } from './module/results/results.module';
 import { RolesModule } from './module/roles/roles.module';
 import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
+import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
 
 @Module({
   imports: [
@@ -86,7 +87,9 @@ import { TestcasesModule } from './module/testcases/testcases.module';
       inject: [ConfigService],
     }),
 
-    AuthModule
+    AuthModule,
+
+    AiAssistantModule
   ],
   controllers: [AppController],
   providers: [AppService],

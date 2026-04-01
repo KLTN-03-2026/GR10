@@ -22,6 +22,9 @@ export class Submission {
 
   @Prop({ type: String, default: 'pending' }) 
   status!: string;
+
+  @Prop()
+ai_hint?: string;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

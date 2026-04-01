@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { User } from './entities/user.entity';
-import { hashPasswordHelper } from '@/helpers/util';
+import { generateVerificationCode, hashPasswordHelper } from '@/helpers/util';
 import { CodeAuthDto, CreateAuthDto, changePasswordAuthDto } from '@/auth/dto/create-auth.dto';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 // import aqp from 'api-query-params'; 
 import * as crypto from 'crypto'; 
 import { Role } from '../roles/entities/role.entity';
+import { UploadService } from '@/upload/upload.service';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Role.name) private roleModel: Model<Role>,
     private readonly mailerService: MailerService,
+    private readonly uploadService:UploadService
   ) {}
 
   isEmailExist = async (email: string) => {
@@ -27,7 +29,7 @@ export class UsersService {
     return false;
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto,file?: Express.Multer.File) {
     const { name, email, password, phone, address, image } = createUserDto;
     
     // check Email
@@ -35,14 +37,19 @@ export class UsersService {
     if (isExist) {
       throw new BadRequestException(`Email đã tồn tại: ${email}, vui lòng sử dụng email khác`);
     }
-    
+    let imageUrl = createUserDto.image;
+    if(file){
+      const uploadResult = await this.uploadService.uploadFile(file);
+      imageUrl = uploadResult.secure_url;
+
+    }
     // hash password
     const hashPassword = await hashPasswordHelper(password);
     const user = await this.userModel.create({
-      name, email, password: hashPassword, phone, address, image
+      name, email, password: hashPassword, phone, address, image:imageUrl
     });
-    
-    return { _id: user._id };
+    console.log("image:",user.image)
+    return { _id: user._id ,image:user.image};
   }
 
   async findAll(query: any, current: number, pageSize: number) {
@@ -105,7 +112,7 @@ export class UsersService {
 
     const hashPassword = await hashPasswordHelper(password);
     // Thay thế uuidv4() bằng crypto.randomUUID() để sửa lỗi ESM
-    const codeId = crypto.randomUUID(); 
+    const codeId = await generateVerificationCode(5); 
     let defaultRole = await this.roleModel.findOne({ role_name: 'user' });
     if (!defaultRole) {
       defaultRole = await this.roleModel.create({
@@ -165,7 +172,7 @@ export class UsersService {
     if (!user) throw new BadRequestException("Tài khoản người dùng không tồn tại");
     if (user.isActive) throw new BadRequestException("Tài khoản này đã được kích hoạt");
 
-    const codeId = crypto.randomUUID();
+    const codeId = await generateVerificationCode(5);
     await user.updateOne({ codeId, codeExpired: dayjs().add(5, 'minutes') });
 
     this.mailerService.sendMail({
@@ -182,7 +189,7 @@ export class UsersService {
     const user = await this.userModel.findOne({ email });
     if (!user) throw new BadRequestException("Tài khoản người dùng không tồn tại");
 
-    const codeId = crypto.randomUUID();
+    const codeId = await generateVerificationCode(5);
     await user.updateOne({ codeId, codeExpired: dayjs().add(5, 'minutes') });
 
     this.mailerService.sendMail({

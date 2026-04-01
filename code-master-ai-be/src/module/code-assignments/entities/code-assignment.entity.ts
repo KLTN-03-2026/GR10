@@ -13,5 +13,12 @@ export class CodeAssignment {
   @Prop() memory_limit!: number;
   @Prop() starter_code!: string;
   @Prop() language_support!: string;
+
+  // lien quan den AI
+  @Prop({ default: 'EASY', enum: ['EASY', 'MEDIUM', 'HARD'] })
+  difficulty!: string;
+
+  @Prop({ type: [String], default: [] })
+  tags!: string[]; // ['Array', 'For Loop', 'Math']
 }
 export const CodeAssignmentSchema = SchemaFactory.createForClass(CodeAssignment);
