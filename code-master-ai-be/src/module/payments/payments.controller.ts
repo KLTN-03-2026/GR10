@@ -43,9 +43,9 @@ export class PaymentsController {
       return res.redirect('http://localhost:3000/payment-fail');
     }
 
-    const userId = vnp_TxnRef.split('_')[0];
-    await this.paymentsService.markPaymentPaidAndClearCartByOrder(userId);
-    return res.redirect(`http://localhost:3000/payment-success/${userId}`);
+    const orderid = vnp_TxnRef.split('_')[0];
+    await this.paymentsService.markPaymentPaidAndClearCartByOrder(orderid);
+    return res.redirect(`http://localhost:3000/payment-success/${orderid}`);
   }
   @Post('momo-ipn')
   async momoIpn(@Body() body: any) {

@@ -11,6 +11,7 @@ import PurchaseHistoryContent from "../pages/purchase";
 import AuthLayout from "../layout/authLayout";
 import AuthForm from "../components/authForm";
 import CourseDetailPage from "../pages/courseDetail";
+import PaymentSuccessContent from "../pages/paymentSuccess";
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: "/history-order",
         element: <PurchaseHistoryContent />,
+      },
+      {
+        path: "/payment-success/:orderId",
+        element: <PaymentSuccessContent />,
       },
     ],
   },

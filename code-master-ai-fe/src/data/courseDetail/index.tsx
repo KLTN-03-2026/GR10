@@ -1,3 +1,13 @@
+export interface LessonItem {
+  _id: string;
+  title: string;
+  content?: string;
+  video_url?: string;
+  lesson_order: number;
+  course_id: string;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface CourseDetail {
   _id: string;
   title: string;
@@ -14,6 +24,8 @@ export interface CourseDetail {
   updatedAt: string;
   learning_outcomes: string[];
   requirements: string[];
+
+  lessons: LessonItem[];
 }
 
 export type TabKey = "intro" | "content" | "reviews";
@@ -44,6 +56,18 @@ export const courseData: CourseDetail = {
   ],
   createdAt: "2026-03-23T14:03:29.565Z",
   updatedAt: "2026-03-23T14:03:29.565Z",
+  lessons: [
+    {
+      _id: "69c9303da0431e0f9624db07",
+      title: "Giới thiệu khóa học NestJS",
+      content: "Tổng quan về NestJS và cách xây dựng backend hiện đại.",
+      video_url: "https://example.com/video1",
+      lesson_order: 1,
+      course_id: "69c65140015539489200689d",
+      createdAt: "2026-03-29T13:59:25.277Z",
+      updatedAt: "2026-03-29T13:59:25.277Z",
+    },
+  ],
 };
 
 export const fakeLearnings = [
