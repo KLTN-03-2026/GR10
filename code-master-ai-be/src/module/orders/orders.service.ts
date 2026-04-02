@@ -44,14 +44,28 @@ export class OrdersService {
     return new ApiResponse('Danh sách đơn hàng', { results, totalPages });
   }
 
-  async findOne(id: string): Promise<ApiResponse<Order>> {
+  async findOne(id: string): Promise<ApiResponse<any>> {
     const order = await this.ordersModel.findById(id).lean().exec();
 
     if (!order) {
       throw new NotFoundException('Không tìm thấy đơn hàng');
     }
 
-    return new ApiResponse('Thông tin đơn hàng', order);
+    const orderDetails = await this.orderDetailModel
+      .find({ order_id: new Types.ObjectId(id) })
+      .populate('course_id')
+      .lean();
+
+    const courses = orderDetails.map((detail: any) => ({
+      orderDetailId: detail._id,
+      purchasePrice: detail.price,
+      course: detail.course_id,
+    }));
+
+    return new ApiResponse('Thông tin đơn hàng', {
+      ...order,
+      courses,
+    });
   }
 
   async updateStatus(
