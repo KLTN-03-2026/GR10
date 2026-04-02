@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import type { PaymentInfo } from "../../../types/order/order";
-import { getPaymentByOrderId, PaymentByOrderData } from "@/api/payment/payment";
+import {
+  getPaymentByOrderId,
+  PaymentByOrderData,
+} from "../../../api/payment/payment";
 
 type Props = {
   orderId: string;
@@ -39,7 +42,7 @@ const PaymentSummary: React.FC<Props> = ({ orderId }) => {
         </div> */}
         <div className="flex justify-between text-sm opacity-90">
           <span>Tổng tiền</span>
-          <span>-{formatPrice(payment!.amount)}</span>
+          <span>-{formatPrice(payment?.amount || 1)}</span>
         </div>
       </div>
 
@@ -47,7 +50,9 @@ const PaymentSummary: React.FC<Props> = ({ orderId }) => {
 
       <div className="mb-6">
         <div className="text-xs opacity-70 mb-1">Tổng thanh toán</div>
-        <div className="text-2xl font-bold">{formatPrice(payment!.amount)}</div>
+        <div className="text-2xl font-bold">
+          {formatPrice(payment?.amount || 1)}
+        </div>
       </div>
 
       <div className="bg-white/10 p-4 rounded-lg flex items-start gap-3">

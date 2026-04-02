@@ -52,7 +52,7 @@ const OrderDetailPage: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3 space-y-8">
-          <PaymentSummary orderId={order!._id} />
+          <PaymentSummary orderId={order?._id || ""} />
           {/* <CustomerInfo customer={order.customer} /> */}
         </div>
       </div>

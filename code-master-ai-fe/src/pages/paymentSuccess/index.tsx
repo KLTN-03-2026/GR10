@@ -229,6 +229,7 @@ const PaymentSuccessContent: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
           <button
             type="button"
+            onClick={() => navigate(`/order-detail/${orderId}`)}
             className="px-10 py-4 bg-gradient-to-br from-[#23422a] to-[#3a5a40] text-white rounded-full font-semibold text-lg hover:opacity-90 transition-all flex items-center justify-center gap-2"
           >
             Chi tiết đơn hàng

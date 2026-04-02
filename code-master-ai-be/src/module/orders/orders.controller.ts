@@ -36,6 +36,7 @@ export class OrdersController {
     return this.ordersService.findByUser(user._id, query, +current, +pageSize);
   }
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.ordersService.findOne(id);
   }

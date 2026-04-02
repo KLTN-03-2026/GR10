@@ -1,5 +1,4 @@
-
-
+import { useNavigate } from "react-router-dom";
 import type { PurchaseItem } from "../../../types/purchase/purchase";
 import { Calendar, CreditCard } from "lucide-react";
 
@@ -28,6 +27,7 @@ const statusMap = {
 const fallbackImage = "https://via.placeholder.com/300x200?text=Course";
 
 const OrderCard = ({ order }: OrderCardProps) => {
+  const navigate = useNavigate();
   const statusConfig = statusMap[order.status];
   const imageSrc = order.thumbnail || fallbackImage;
 
@@ -84,6 +84,9 @@ const OrderCard = ({ order }: OrderCardProps) => {
 
           <button
             type="button"
+            onClick={() => {
+              navigate(`/order-detail/${order.id}`);
+            }}
             className="rounded-xl bg-[#23422a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3a5a40]"
           >
             Xem chi tiết
