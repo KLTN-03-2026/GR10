@@ -1,3 +1,6 @@
+import { GetCategories } from "../../api/course";
+import { get } from "node:http";
+
 export type CourseLevel = 'Cơ bản' | 'Trung bình' | 'Nâng cao';
 
 export type CourseCategory = 'AI & Data' | 'Frontend' | 'Backend' | 'Mobile' | 'Cybersecurity';
@@ -19,15 +22,10 @@ export interface Course  {
   ctaLabel: string;
 };
 
-export const categories: Array<'Tất cả' | CourseCategory> = [
-  'Tất cả',
-  'Frontend',
-  'Backend',
-  'AI & Data',
-  'Mobile',
-  'Cybersecurity',
-];
-
+export const GetCategoryNames = async (): Promise<CourseCategory[]> => {
+  const categories = await GetCategories();
+  return categories.map((category) => category.category_name as CourseCategory);
+};
 export const courses: Course[] = [
   {
     id: 1,

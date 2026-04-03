@@ -11,6 +11,12 @@ import PurchaseHistoryContent from "../pages/purchase";
 import AuthLayout from "../layout/authLayout";
 import AuthForm from "../components/authForm";
 import CourseDetailPage from "../pages/courseDetail";
+import AdminLayout from "../layout/adminLayout";
+import ArticleManage from "../pages/articleManage";
+import CourseManage from "../pages/courseManage";
+import ExerciseManage from "../pages/exerciseManage";
+import UserManage from "../pages/userManage";
+import CategoryManage from "../pages/categoryManage";
 
 export const router = createBrowserRouter([
   {
@@ -66,5 +72,16 @@ export const router = createBrowserRouter([
         <AuthForm type="login" />
       </AuthLayout>
     ),
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      { path: "articles", element: <ArticleManage /> },
+      { path: "courses", element: <CourseManage /> },
+      { path: "exercises", element: <ExerciseManage /> },
+      { path: "users", element: <UserManage /> },
+      { path: "categories", element: <CategoryManage /> },
+    ],
   },
 ]);
