@@ -1,11 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { CustomerInfo as CustomerInfoType } from "../../../types/order/order";
+import {
+  getPaymentByOrderId,
+  PaymentByOrderData,
+} from "../../../api/payment/payment";
 
 type Props = {
-  customer: CustomerInfoType;
+  orderId: string;
 };
 
-const CustomerInfo: React.FC<Props> = ({ customer }) => {
+const CustomerInfo: React.FC<Props> = ({ orderId }) => {
+  const [payment, setPayment] = useState<PaymentByOrderData | null>(null);
+
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "Chưa thanh toán";
+
+    return new Date(dateString).toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  useEffect(() => {
+    const fetchPayment = async () => {
+      if (!orderId) return;
+
+      try {
+        const res = await getPaymentByOrderId(orderId);
+        setPayment(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPayment();
+  }, [orderId]);
   return (
     <div className="bg-[#f5f1e8] p-8 rounded-2xl space-y-6">
       <h3 className="text-sm font-semibold text-[#6b7280] uppercase tracking-widest">
@@ -15,19 +47,32 @@ const CustomerInfo: React.FC<Props> = ({ customer }) => {
       <div className="space-y-4">
         <div>
           <div className="text-xs text-[#6b7280] font-medium mb-1">Tên</div>
-          <div className="font-semibold text-[#23422a]">{customer.name}</div>
+          <div className="font-semibold text-[#23422a]">
+            {payment?.user_id.name}
+          </div>
         </div>
 
         <div>
           <div className="text-xs text-[#6b7280] font-medium mb-1">Email</div>
-          <div className="font-semibold text-[#23422a]">{customer.email}</div>
+          <div className="font-semibold text-[#23422a]">
+            {payment?.user_id.email}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs text-[#6b7280] font-medium mb-1">Số điện thoại</div>
+          <div className="font-semibold text-[#23422a]">
+            {payment?.user_id.phone}
+          </div>
         </div>
 
         <div>
           <div className="text-xs text-[#6b7280] font-medium mb-1">
             Ngày thanh toán
           </div>
-          <div className="font-semibold text-[#23422a]">{customer.paidAt}</div>
+          <div className="font-semibold text-[#23422a]">
+            {formatDate(payment?.paid_at)}
+          </div>
         </div>
       </div>
 

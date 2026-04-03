@@ -63,6 +63,7 @@ const PaymentSummary: React.FC<Props> = ({ orderId }) => {
       </div>
     </div>
   );
+
 };
 
 export default PaymentSummary;

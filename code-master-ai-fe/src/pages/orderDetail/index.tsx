@@ -5,7 +5,7 @@ import OrderTimeline from "../../components/orderDetail/order-timeline/OrderTime
 import OrderItemsList from "../../components/orderDetail/order-items-list/OrderItemsList";
 import PaymentSummary from "../../components/orderDetail/payment-summary/PaymentSummary";
 import CustomerInfo from "../../components/orderDetail/customer-info/CustomerInfo";
-
+import Footer from "../../components/footer";
 import {
   GetOrderDetail,
   type OrderDetailData,
@@ -36,27 +36,30 @@ const OrderDetailPage: React.FC = () => {
   }, [orderId]);
 
   return (
-    <main className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-      <OrderHeader
-        orderCode={order?._id || ""}
-        status={order?.status as "paid" | "pending" | "cancelled"}
-        createdAt={order?.createdAt || ""}
-      />
+    <>
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+        <OrderHeader
+          orderCode={order?._id || ""}
+          status={order?.status as "paid" | "pending" | "cancelled"}
+          createdAt={order?.createdAt || ""}
+        />
 
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-        <div className="lg:col-span-7 space-y-8">
-          <OrderTimeline
-            status={order?.status as "paid" | "pending" | "cancelled"}
-          />
-          <OrderItemsList courses={order?.courses ?? []} />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+          <div className="lg:col-span-7 space-y-8">
+            <OrderTimeline
+              status={order?.status as "paid" | "pending" | "cancelled"}
+            />
+            <OrderItemsList courses={order?.courses ?? []} />
+          </div>
 
-        <div className="lg:col-span-3 space-y-8">
-          <PaymentSummary orderId={order?._id || ""} />
-          {/* <CustomerInfo customer={order.customer} /> */}
+          <div className="lg:col-span-3 space-y-8">
+            <PaymentSummary orderId={order?._id || ""} />
+            <CustomerInfo orderId={order?._id || ""} />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+      <Footer></Footer>
+    </>
   );
 };
 
