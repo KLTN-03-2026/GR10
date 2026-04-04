@@ -5,8 +5,8 @@ import CartItem, {
 import RecommendedSection from "../../components/cart/recommended/RecommendedSection";
 import OrderSummary from "../../components/cart/order-summary/OrderSummary";
 import Footer from "../../components/footer";
-import { getCartListQuick, removeCartItem } from "../../api/cart";
-
+import { GetCartLength, getCartListQuick, removeCartItem } from "../../api/cart";
+import { useUserCart } from "../../store/cart";
 const recommendedCourses = [
   {
     id: 1,
@@ -35,7 +35,7 @@ const Cart = () => {
   const [cartList, setCartList] = useState<CartItemData[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-
+  const { setQuantityCart } = useUserCart();
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -72,9 +72,10 @@ const Cart = () => {
   const handleRemove = async (id: string) => {
     try {
       await removeCartItem(id);
-
+      const data = await GetCartLength();
+      setQuantityCart(data.data);
+      console.log("Xóa sản phẩm thành công!:", data.data);
       const removedItem = cartList.find((item) => item.id === id);
-
       setCartList((prev) => prev.filter((item) => item.id !== id));
 
       if (removedItem) {

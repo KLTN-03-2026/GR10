@@ -7,27 +7,43 @@ import { useUserInfo } from "../../store/user";
 import { UserOutlined } from "@ant-design/icons";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Dropdown, MenuProps } from "antd";
-import { LogoutOutlined , ShoppingOutlined } from "@ant-design/icons";
+import { LogoutOutlined, ShoppingOutlined } from "@ant-design/icons";
+import { GetCartLength } from "../../api/cart";
+import {useUserCart} from "../../store/cart";
+import { get } from "node:http";
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [navSelected, setNavSelected] = useState(location.pathname);
-    const { userInfo , clearUserInfo } = useUserInfo();
-    
+    const { userInfo, clearUserInfo } = useUserInfo();
+    const {setQuantityCart,countQuantityCart} = useUserCart();
     useEffect(() => {
         setNavSelected(location.pathname);
     }, [location]);
+    useEffect(() => {
+        const getCountCart = async() => {
+            try {
+                const data = await GetCartLength();
+                console.log("Số lượng cart:", data.data);
+                setQuantityCart(data.data);
+            } catch (error) {
+                    console.error("Lỗi lấy số lượng cart:", error);
+            }
+        }
+        getCountCart();
+    }, []);
+    
     const items: MenuProps['items'] = [
         {
             key: '1',
             label: (
-                <div className="font-medium text-brand-600 flex gap-3">{<UserOutlined/>}Thông tin cá nhân</div>
+                <div className="font-medium text-brand-600 flex gap-3">{<UserOutlined />}Thông tin cá nhân</div>
             ),
         },
         {
             key: '2',
             label: (
-                <div onClick={() => navigate('/history-order')} className="font-medium text-brand-600 flex gap-3">{<ShoppingOutlined/>}Lịch sử đơn hàng</div>
+                <div onClick={() => navigate('/history-order')} className="font-medium text-brand-600 flex gap-3">{<ShoppingOutlined />}Lịch sử đơn hàng</div>
             ),
         },
         {
@@ -37,7 +53,7 @@ const Navbar = () => {
                     clearUserInfo();
                     navigate('/login');
                     localStorage.clear();
-                }} className="font-medium text-brand-600 flex gap-3">{<LogoutOutlined/>}Đăng xuất</div>
+                }} className="font-medium text-brand-600 flex gap-3">{<LogoutOutlined />}Đăng xuất</div>
             ),
         },
     ];
@@ -74,8 +90,11 @@ const Navbar = () => {
                     </div>
 
                     {userInfo && (
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-3 relative">
                             <ShoppingCartOutlined onClick={() => navigate('/cart')} className="text-2xl text-brand-700 cursor-pointer hover:text-brand-400 " />
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                {countQuantityCart}
+                            </span>
                         </div>
                     )}
                     {userInfo ? (
