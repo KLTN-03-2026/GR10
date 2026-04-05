@@ -1,7 +1,8 @@
 import { ICourse } from "../../pages/course";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { createCartItem } from "../../api/cart";
+import { createCartItem, GetCartLength } from "../../api/cart";
+import { useUserCart } from "../../store/cart";
 const getCategoryBadgeClass = (categoryName: string) => {
   switch (categoryName) {
     case "Frontend":
@@ -55,9 +56,12 @@ const renderStars = (rating: number) => {
 };
 export const CourseCard = ({ course }: { course: ICourse }) => {
   const navigate = useNavigate();
+  const {setQuantityCart} = useUserCart();
   const onCart = async () => {
     try {
       await createCartItem(course._id);
+      const data = await GetCartLength();
+      setQuantityCart(data.data);
       console.log("Thêm vào giỏ hàng thành công!");
     } catch (error) {
       console.log("Lỗi khi thêm vào giỏ hàng. Vui lòng thử lại.");

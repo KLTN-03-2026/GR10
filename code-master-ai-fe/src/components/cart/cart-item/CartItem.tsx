@@ -19,10 +19,10 @@ interface CartItemProps {
 
 export default function CartItem({ item, onRemove }: CartItemProps) {
   const [messageApi, holder] = message.useMessage();
-
   const confirm: PopconfirmProps['onConfirm'] = (e) => {
     console.log(e);
     onRemove(item.id);
+    
     // messageApi.success('Click on Yes');
   };
 

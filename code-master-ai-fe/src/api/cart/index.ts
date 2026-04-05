@@ -52,3 +52,17 @@ export const createCartItem = async (_id: string) => {
     throw error;
   }
 };
+export const GetCartLength = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/carts/count`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error : any) {
+    console.error("Lỗi tạo cart:", error);
+    throw error;
+  }
+};
