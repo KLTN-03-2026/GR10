@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './module/users/users.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { AssignmentsModule } from './module/assignments/assignments.module';
 import { CartDetailsModule } from './module/cart-details/cart-details.module';
 import { CartsModule } from './module/carts/carts.module';
@@ -24,12 +24,9 @@ import { ResultsModule } from './module/results/results.module';
 import { RolesModule } from './module/roles/roles.module';
 import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
-<<<<<<< HEAD
 import { BlogsModule } from './module/blogs/blogs.module';
 import { StatisticsModule } from './module/statistics/statistics.module';
-=======
 import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
->>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
 
 @Module({
   imports: [
@@ -94,13 +91,10 @@ import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
 
     AuthModule,
 
-<<<<<<< HEAD
     BlogsModule,
 
     StatisticsModule,
-=======
-    AiAssistantModule
->>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
+    AiAssistantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

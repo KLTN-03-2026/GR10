@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
-=======
 import { IS_PUBLIC_KEY } from '@/decorator/customize';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -34,4 +27,3 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return user;
   }
 }
->>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
