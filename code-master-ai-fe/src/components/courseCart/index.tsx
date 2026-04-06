@@ -1,5 +1,8 @@
 import { ICourse } from "../../pages/course";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { createCartItem, GetCartLength } from "../../api/cart";
+import { useUserCart } from "../../store/cart";
 const getCategoryBadgeClass = (categoryName: string) => {
   switch (categoryName) {
     case "Frontend":
@@ -29,6 +32,7 @@ const getLevelLabel = (level: string) => {
       return level;
   }
 };
+
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
@@ -52,12 +56,23 @@ const renderStars = (rating: number) => {
 };
 export const CourseCard = ({ course }: { course: ICourse }) => {
   const navigate = useNavigate();
+  const {setQuantityCart} = useUserCart();
+  const onCart = async () => {
+    try {
+      await createCartItem(course._id);
+      const data = await GetCartLength();
+      setQuantityCart(data.data);
+      console.log("Thêm vào giỏ hàng thành công!");
+    } catch (error) {
+      console.log("Lỗi khi thêm vào giỏ hàng. Vui lòng thử lại.");
+    }
+  }
   return (
     <article
-      onClick={() => navigate(`/course/${course._id}`)}
-      className="group cursor-pointer flex h-full flex-col overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+
+      className="group  flex h-full flex-col overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
     >
-      <div className="relative aspect-[16/10] overflow-hidden">
+      <div onClick={() => navigate(`/course/${course._id}`)} className="relative aspect-[16/10] overflow-hidden cursor-pointer">
         <img
           src={course.thumbnail}
           alt={course.title}
@@ -74,18 +89,20 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="mb-3 line-clamp-2 text-lg font-bold leading-snug text-brand-700">
-          {course.title}
-        </h3>
+        <div onClick={() => navigate(`/course/${course._id}`)} className="cursor-pointer">
+          <h3 className="mb-3 line-clamp-2 text-lg font-bold leading-snug text-brand-700">
+            {course.title}
+          </h3>
 
-        <p className="mb-5 line-clamp-2 text-sm font-medium leading-relaxed text-slate-500">
-          {course.description}
-        </p>
+          <p className="mb-5 line-clamp-2 text-sm font-medium leading-relaxed text-slate-500">
+            {course.description}
+          </p>
 
-        <div className="mb-5 flex flex-wrap items-center gap-4 text-xs font-bold text-brand-500">
-          <span>25 bài</span>
-          <span>22 giờ</span>
-          <span>{course.level}</span>
+          <div className="mb-5 flex flex-wrap items-center gap-4 text-xs font-bold text-brand-500">
+            <span>25 bài</span>
+            <span>22 giờ</span>
+            <span>{course.level}</span>
+          </div>
         </div>
 
         {/* <div className="mb-6 flex items-center gap-2 text-xs font-bold text-slate-400">
@@ -101,9 +118,8 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
               </span>
             )} */}
             <span
-              className={`text-lg font-bold ${
-                course.price === 0 ? "text-brand-600" : "text-brand-600"
-              }`}
+              className={`text-lg font-bold ${course.price === 0 ? "text-brand-600" : "text-brand-600"
+                }`}
             >
               {course.price} Đ
             </span>
@@ -113,9 +129,10 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
             {course.price !== 0 && (
               <button
                 type="button"
+                onClick={() => onCart()}
                 className="flex size-10 items-center justify-center rounded-xl bg-brand-25 text-brand-600 transition-colors hover:bg-brand-50"
               >
-                🛒
+                <ShoppingCartOutlined />
               </button>
             )}
             <button

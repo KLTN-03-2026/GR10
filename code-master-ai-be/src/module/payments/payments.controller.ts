@@ -38,14 +38,17 @@ export class PaymentsController {
   @Get('vnpay-callback')
   async vnpayCallback(@Query() query: any, @Res() res: Response) {
     const { vnp_ResponseCode, vnp_TxnRef } = query;
-
+    const orderid = vnp_TxnRef.split('_')[0];
     if (vnp_ResponseCode !== '00') {
-      return res.redirect('http://localhost:3000/payment-fail');
+      return res.redirect(
+        `https://code-ai-master-kltn-2026-10.vercel.app/payment-fail/${orderid}`,
+      );
     }
 
-    const userId = vnp_TxnRef.split('_')[0];
-    await this.paymentsService.markPaymentPaidAndClearCartByOrder(userId);
-    return res.redirect(`http://localhost:3000/payment-success/${userId}`);
+    await this.paymentsService.markPaymentPaidAndClearCartByOrder(orderid);
+    return res.redirect(
+      `https://code-ai-master-kltn-2026-10.vercel.app//payment-success/${orderid}`,
+    );
   }
   @Post('momo-ipn')
   async momoIpn(@Body() body: any) {
@@ -53,6 +56,28 @@ export class PaymentsController {
     await this.paymentsService.handleMomoIpn(body);
     return { message: 'IPN processed successfully' };
   }
+
+  @Get('momo-return')
+  async momoReturn(@Query() query: any, @Res() res: Response) {
+    const { orderId, resultCode } = query;
+
+    if (Number(resultCode) !== 0) {
+      return res.redirect(
+        `https://code-ai-master-kltn-2026-10.vercel.app/payment-fail/${orderId}`,
+      );
+    }
+
+    return res.redirect(
+      `https://code-ai-master-kltn-2026-10.vercel.app//payment-success/${orderId}`,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('by-order/:orderId')
+  getPaymentByOrderId(@Param('orderId', ParseObjectIdPipe) orderId: string) {
+    return this.paymentsService.getPaymentByOrderId(orderId);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   getPaymentById(@Param('id', ParseObjectIdPipe) id: string) {

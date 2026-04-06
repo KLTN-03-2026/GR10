@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, Button, Checkbox, Divider } from "antd";
+import { showMessage } from "../../utils/showMessages";
 import {
   MailOutlined,
   LockOutlined,
@@ -8,11 +9,12 @@ import {
   UserOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import { PostOTP, PostRegister } from "../../api/auth";
+import { PostOTP, PostRegister, handleGoogleLogin } from "../../api/auth";
 import { PostLogin } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "antd";
 import { useUserInfo } from "../../store/user";
+import { on } from "node:cluster";
 type AuthFormProps = {
   type?: "login" | "register";
 };
@@ -26,6 +28,15 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
   const navigate = useNavigate();
   const [OTP, setOTP] = useState("");
   const [userData, setUserData] = useState<IUser | null>(null);
+  const [errorEmail, setErrorEmail] = useState(false);
+  const [errorPassword, setErrorPassword] = useState(false);
+  const [errorConfirmPassword, setErrorConfirmPassword] = useState(false);
+  const [errorEmailTab, setErrorEmailTab] = useState<"login" | "register">(
+    "login",
+  );
+  const [errorPasswordTab, setErrorPasswordTab] = useState<
+    "login" | "register"
+  >("login");
   const [formRegisterData, setFormRegisterData] = useState({
     fullname: "",
     email: "",
@@ -37,64 +48,159 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
     password: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+  const [forgotStep, setForgotStep] = useState<"email" | "otp">("email");
 
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotOTP, setForgotOTP] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  //dropdown OTP
   const showModal = () => {
     setIsModalOpen(true);
   };
-
+  const showForgotModal = () => {
+    setIsForgotModalOpen(true);
+    setForgotStep("email");
+  };
   const handleOk = async () => {
     setIsModalOpen(false);
     // console.log("id:"+ userData?._id+"code:"+OTP)
     try {
       await PostOTP({ _id: userData?._id || "", code: OTP });
-      setTab("login")
+      setTab("login");
     } catch (error) {
       console.log(error);
     }
     setOTP("");
-    
   };
-
-  
-
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+
+  // const handleSendEmail = async () => {
+  //   try {
+  //     await PostOTP({ email: forgotEmail }); // API gửi OTP
+  //     showMessage("success", "OTP đã được gửi về email");
+  //     setForgotStep("otp");
+  //   } catch (error) {
+  //     showMessage("error", "Email không tồn tại");
+  //   }
+  // };
+
+  // const handleResetPassword = async () => {
+  //   try {
+  //     await PostOTP({
+  //       email: forgotEmail,
+  //       code: forgotOTP,
+  //       newPassword,
+  //     });
+  //     showMessage("success", "Đổi mật khẩu thành công");
+  //     setIsForgotModalOpen(false);
+  //   } catch (error) {
+  //     showMessage("error", "OTP không đúng");
+  //   }
+  // };
+
+  // const handleResendOTP = async () => {
+  //   try {
+  //     await PostOTP({ email: forgotEmail });
+  //     showMessage("success", "Đã gửi lại OTP");
+  //   } catch (error) {
+  //     showMessage("error", "Lỗi gửi lại OTP");
+  //   }
+  // };
+
+  const checkform = () => {
+    if (tab === "register") {
+      const isFormid = Object.values(formRegisterData).every(
+        (value) => value.trim() !== "",
+      );
+      return isFormid;
+    } else {
+      const isFormid = Object.values(formLoginData).every(
+        (value) => value.trim() !== "",
+      );
+      return isFormid;
+    }
+  };
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const onEmailChange = (value: string) => {
+    setErrorEmail(!emailRegex.test(value));
+    if (errorEmail && tab === "register") {
+      setErrorEmailTab("register");
+    } else if (errorEmail && tab === "login") {
+      setErrorEmailTab("login");
+    }
+    const setFormData =
+      tab === "register" ? setFormRegisterData : setFormLoginData;
+
+    setFormData((prev: any) => ({
+      ...prev,
+      email: value,
+    }));
+  };
+
+  const onPasswordChange = (value: string) => {
+    setErrorPassword(value.length < 6);
+    if (errorPassword && tab === "register") {
+      setErrorPasswordTab("register");
+    } else if (errorPassword && tab === "login") {
+      setErrorPasswordTab("login");
+    }
+    const setFormData =
+      tab === "register" ? setFormRegisterData : setFormLoginData;
+
+    setFormData((prev: any) => ({
+      ...prev,
+      password: value,
+    }));
+  };
+  const onConfirmPasswordChange = (value: string) => {
+    if (value !== formRegisterData.password) {
+      setErrorConfirmPassword(true);
+      setFormRegisterData({ ...formRegisterData, confirmPassword: value });
+    } else {
+      setErrorConfirmPassword(false);
+      setFormRegisterData({ ...formRegisterData, confirmPassword: value });
+    }
+  };
+  const onSubmit = async () => {
+    const ischecked = checkform();
+    if (!ischecked || errorEmail || errorPassword || errorConfirmPassword) {
+      if (tab === "register") {
+        showMessage("error", "Vui lòng điền đầy đủ thông tin đăng ký");
+      } else {
+        showMessage("error", "Vui lòng điền đầy đủ thông tin đăng nhập");
+      }
+    } else {
+      if (tab === "login") {
+        try {
+          console.log("formLoginData: ", formLoginData);
+          const data = await PostLogin(formLoginData);
+          if (data.access_token) {
+            localStorage.setItem("token", data.access_token);
+            setUserInfo(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+          navigate("/");
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        try {
+          const data = await PostRegister(formRegisterData);
+          setUserData(data);
+          showModal();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
   };
   useEffect(() => {
     setTab(type);
   }, [type]);
-  const onEmailChange = (value: string) => {
-    setFormLoginData({ ...formLoginData, email: value });
-    setFormRegisterData({ ...formRegisterData, email: value });
-  };
-  const onPasswordChange = (value: string) => {
-    setFormLoginData({ ...formLoginData, password: value });
-    setFormRegisterData({ ...formRegisterData, password: value });
-  };
-  const onSubmit = async () => {
-    if (tab === "login") {
-      try {
-        const data = await PostLogin(formLoginData);
-        if (data.access_token) {
-          localStorage.setItem("token", data.access_token);
-          setUserInfo(data.user);
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-        navigate("/");
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      try {
-        const data = await PostRegister(formRegisterData);
-        setUserData(data);
-        showModal();
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
-
   return (
     <div className="w-full max-w-[390px] py-2">
       <div className="rounded-[26px]   bg-white px-10 py-10 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
@@ -165,12 +271,21 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
             </label>
             <Input
               size="large"
-              value={formLoginData.email}
+              value={
+                tab === "register"
+                  ? formRegisterData.email
+                  : formLoginData.email
+              }
               onChange={(e) => onEmailChange(e.target.value)}
               placeholder="example@gmail.com"
               prefix={<MailOutlined className="text-slate-400" />}
               className="!h-11 !rounded-[12px] !border-brand-100 !bg-brand-25"
             />
+            {errorEmailTab === tab && errorEmail && (
+              <p className="mt-1 text-[11px] text-red-500">
+                Vui lòng nhập email hợp lệ.
+              </p>
+            )}
           </div>
 
           <div>
@@ -179,7 +294,11 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
             </label>
             <Input.Password
               size="large"
-              value={formLoginData.password}
+              value={
+                tab === "register"
+                  ? formRegisterData.password
+                  : formLoginData.password
+              }
               onChange={(e) => onPasswordChange(e.target.value)}
               placeholder="••••••••"
               prefix={<LockOutlined className="text-slate-400" />}
@@ -188,6 +307,11 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
               }
               className="!h-11 !rounded-[12px] !border-brand-100 !bg-brand-25"
             />
+            {errorPasswordTab === tab && errorPassword && (
+              <p className="mt-1 text-[11px] text-red-500">
+                Mật khẩu phải có ít nhất 6 ký tự.
+              </p>
+            )}
           </div>
 
           {tab === "register" && (
@@ -198,12 +322,7 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
               <Input.Password
                 size="large"
                 value={formRegisterData.confirmPassword}
-                onChange={(e) =>
-                  setFormRegisterData({
-                    ...formRegisterData,
-                    confirmPassword: e.target.value,
-                  })
-                }
+                onChange={(e) => onConfirmPasswordChange(e.target.value)}
                 placeholder="••••••••"
                 prefix={
                   <SafetyCertificateOutlined className="text-slate-400" />
@@ -213,39 +332,45 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
                 }
                 className="!h-11 !rounded-[12px] !border-brand-100 !bg-brand-25"
               />
+              {errorConfirmPassword && (
+                <p className="mt-1 text-[11px] text-red-500">
+                  Mật khẩu xác nhận không khớp.
+                </p>
+              )}
             </div>
           )}
         </div>
 
         {/* Options */}
-        {tab === "login" ? (
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <Checkbox className="text-[13px] text-slate-500">
+        {tab === "login" && (
+          <div className="mt-3 flex items-center justify-end gap-3">
+            {/* <Checkbox className="text-[13px] text-slate-500">
               Ghi nhớ đăng nhập
-            </Checkbox>
+            </Checkbox> */}
 
             <button
               type="button"
+              onClick={showForgotModal}
               className="text-[13px] font-semibold text-brand-700"
             >
               Quên mật khẩu?
             </button>
           </div>
-        ) : (
-          <div className="mt-3 flex items-start gap-2">
-            <Checkbox className="mt-0.5" />
-            <p className="text-[13px] leading-5 text-slate-500">
-              Tôi đồng ý với{" "}
-              <span className="font-semibold text-brand-700">
-                Điều khoản dịch vụ
-              </span>{" "}
-              và{" "}
-              <span className="font-semibold text-brand-700">
-                Chính sách bảo mật
-              </span>
-              .
-            </p>
-          </div>
+          // ) : (
+          //   <div className="mt-3 flex items-start gap-2">
+          //     <Checkbox className="mt-0.5" />
+          //     <p className="text-[13px] leading-5 text-slate-500">
+          //       Tôi đồng ý với{" "}
+          //       <span className="font-semibold text-brand-700">
+          //         Điều khoản dịch vụ
+          //       </span>{" "}
+          //       và{" "}
+          //       <span className="font-semibold text-brand-700">
+          //         Chính sách bảo mật
+          //       </span>
+          //       .
+          //     </p>
+          //   </div>
         )}
 
         {/* Submit */}
@@ -268,6 +393,7 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
         <div className="grid grid-cols-2 gap-2.5">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="flex h-10 items-center justify-center gap-2 rounded-[12px] border border-brand-100 bg-white text-sm font-semibold text-slate-700 transition hover:bg-brand-25"
           >
             <img
@@ -331,6 +457,47 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
           className="!h-11 !rounded-xl !bg-brand-25 !border-brand-100"
         />
       </Modal>
+      {/* <Modal
+        title="Quên mật khẩu"
+        open={isForgotModalOpen}
+        onCancel={() => setIsForgotModalOpen(false)}
+        onOk={forgotStep === "email" ? handleSendEmail : handleResetPassword}
+        okText={forgotStep === "email" ? "Gửi OTP" : "Xác nhận"}
+      >
+        {forgotStep === "email" ? (
+          <>
+            <Input
+              placeholder="Nhập email"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              className="!h-11 !rounded-xl !bg-brand-25 !border-brand-100"
+            />
+          </>
+        ) : (
+          <>
+            <Input
+              placeholder="Nhập OTP"
+              value={forgotOTP}
+              onChange={(e) => setForgotOTP(e.target.value)}
+              className="!h-11 !rounded-xl !bg-brand-25 !border-brand-100 mb-3"
+            />
+
+            <Input.Password
+              placeholder="Nhập mật khẩu mới"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="!h-11 !rounded-xl !bg-brand-25 !border-brand-100 mb-2"
+            />
+
+            <p
+              onClick={handleResendOTP}
+              className="text-sm text-blue-500 cursor-pointer"
+            >
+              Gửi lại OTP
+            </p>
+          </>
+        )}
+      </Modal> */}
     </div>
   );
 }

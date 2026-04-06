@@ -11,8 +11,18 @@ import PurchaseHistoryContent from "../pages/purchase";
 import AuthLayout from "../layout/authLayout";
 import AuthForm from "../components/authForm";
 import CourseDetailPage from "../pages/courseDetail";
-import Lesson from "../pages/lesson";
-import Quizz from "../pages/quizz";
+import PaymentSuccessContent from "../pages/paymentSuccess";
+import OrderDetailPage from "../pages/orderDetail";
+import AdminLayout from "../layout/adminLayout";
+import ArticleManage from "../pages/articleManage";
+import CourseManage from "../pages/courseManage";
+import ExerciseManage from "../pages/exerciseManage";
+import UserManage from "../pages/userManage";
+import CategoryManage from "../pages/categoryManage";
+import GoogleAuthCallback from "../pages/auth/GoogleAuthCallback";
+import LearnLayout from "@/layout/LearnLayout";
+import LessonPage from "@/pages/lesson";
+import Quizz from "@/pages/quizz";
 
 export const router = createBrowserRouter([
   {
@@ -52,16 +62,29 @@ export const router = createBrowserRouter([
         element: <PurchaseHistoryContent />,
       },
       {
-        path: "/lesson/:id",
-        element: <Lesson />,
+        path: "/payment-success/:orderId",
+        element: <PaymentSuccessContent />,
       },
       {
-        path: "/quiz/:id",
+        path: "/order-detail/:orderId",
+        element: <OrderDetailPage />,
+      },
+    ],
+  },
+  {
+    path: "/learn",
+    element: <LearnLayout />,
+    children: [
+      {
+        path: "lesson/:id",
+        element: <LessonPage />,
+      },
+      {
+        path: "quiz/:id",
         element: <Quizz />,
       },
     ],
   },
-
   {
     path: "/register",
     element: (
@@ -77,5 +100,24 @@ export const router = createBrowserRouter([
         <AuthForm type="login" />
       </AuthLayout>
     ),
+  },
+  {
+    path: "/auth/google/callback",
+    element: (
+      <AuthLayout>
+        <GoogleAuthCallback />
+      </AuthLayout>
+    ),
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      { path: "articles", element: <ArticleManage /> },
+      { path: "courses", element: <CourseManage /> },
+      { path: "exercises", element: <ExerciseManage /> },
+      { path: "users", element: <UserManage /> },
+      { path: "categories", element: <CategoryManage /> },
+    ],
   },
 ]);

@@ -15,6 +15,11 @@ const PurchaseHistoryContent = () => {
   const [orders, setOrders] = useState<PurchaseItem[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(6);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
   const mapOrderStatus = (status: string): OrderStatus => {
     switch (status) {
       case "pending":
@@ -41,22 +46,20 @@ const PurchaseHistoryContent = () => {
   };
 
   const mapApiOrderToPurchaseItem = (order: OrderItem): PurchaseItem => {
+    const firstOrderDetail = order.orderDetails?.[0];
+    const firstCourse = firstOrderDetail?.course;
+
     return {
       id: order._id,
       typeLabel: "Khóa học trực tuyến",
-      title:
-        order.course_name ||
-        order.title ||
-        order.product_name ||
-        "Đơn hàng khóa học",
+      title: firstCourse?.title || "Đơn hàng khóa học",
       date: formatDate(order.createdAt),
-      paymentMethod:
-        order.payment_method || order.paymentMethod || "Thanh toán online",
+      paymentMethod: "Thanh toán online",
       total: formatPrice(order.total_price),
       status: mapOrderStatus(order.status),
       thumbnail:
-        order.thumbnail ||
-        order.image ||
+        order.firstCourseImage ||
+        firstCourse?.thumbnail ||
         "https://via.placeholder.com/300x200?text=Course",
     };
   };
@@ -65,42 +68,96 @@ const PurchaseHistoryContent = () => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
+        const apiStatus =
+          activeFilter === "all"
+            ? undefined
+            : activeFilter === "failed"
+              ? "cancelled"
+              : activeFilter;
+
         const res = await GetHistoryOrder({
-          current: 1,
-          pageSize: 50,
+          current: currentPage,
+          pageSize,
+          status: apiStatus,
         });
 
         const mappedOrders = (res.data.results || []).map(
           mapApiOrderToPurchaseItem,
         );
+
         setOrders(mappedOrders);
+        setTotalPages(res.data.totalPages || 1);
+        setTotalItems(res.data.totalItems || 0);
       } catch (error) {
         console.error("Lỗi lấy lịch sử đơn hàng:", error);
         setOrders([]);
+        setTotalPages(1);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [currentPage, pageSize, activeFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
 
   const filteredOrders = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
     return orders.filter((item) => {
-      const matchStatus =
-        activeFilter === "all" ? true : item.status === activeFilter;
-
       const matchSearch =
         keyword === "" ||
         item.title.toLowerCase().includes(keyword) ||
         item.typeLabel.toLowerCase().includes(keyword) ||
         item.paymentMethod.toLowerCase().includes(keyword);
 
-      return matchStatus && matchSearch;
+      return matchSearch;
     });
-  }, [orders, activeFilter, searchKeyword]);
+  }, [orders, searchKeyword]);
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    return (
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+        <button
+          className="rounded-lg border border-[#d6d2c8] px-4 py-2 text-sm font-medium text-[#23422a] disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          disabled={currentPage === 1}
+        >
+          Trước
+        </button>
+
+        {pages.map((page) => (
+          <button
+            key={page}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              currentPage === page
+                ? "bg-[#23422a] text-white"
+                : "border border-[#d6d2c8] text-[#23422a] hover:bg-[#f3f1ea]"
+            }`}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          className="rounded-lg border border-[#d6d2c8] px-4 py-2 text-sm font-medium text-[#23422a] disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Sau
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -115,7 +172,7 @@ const PurchaseHistoryContent = () => {
           </p>
         </div>
 
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <StatusFilter
             activeFilter={activeFilter}
             onChange={setActiveFilter}
@@ -123,16 +180,23 @@ const PurchaseHistoryContent = () => {
           <SearchBox value={searchKeyword} onChange={setSearchKeyword} />
         </div>
 
+        <div className="mb-6 text-sm text-[#424842]">
+          Tổng đơn hàng: <span className="font-semibold">{totalItems}</span>
+        </div>
+
         {loading ? (
           <div className="py-10 text-center text-[#424842]">
             Đang tải dữ liệu...
           </div>
         ) : filteredOrders.length > 0 ? (
-          <div className="space-y-5">
-            {filteredOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
-          </div>
+          <>
+            <div className="space-y-5">
+              {filteredOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </div>
+            {renderPagination()}
+          </>
         ) : (
           <EmptyState />
         )}

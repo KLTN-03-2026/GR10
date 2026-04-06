@@ -35,9 +35,9 @@ export const PostRegister = async ({
     console.log("THANH CONG: ", res.data);
     // showMessage("success", "Đăng kí thành công!");
     return res.data;
-  } catch (err) {
+  } catch (err: any) {
     console.log("THAT BAI: ", err);
-    // showMessage("error", "Đăng kí thất bại!");
+    showMessage("error", err.response?.data?.message || "Đăng kí thất bại!");
     throw err;
   }
 };
@@ -56,10 +56,9 @@ export const PostLogin = async ({
     showMessage("success", "Đăng nhập thành công!");
 
     return res.data;
-  } catch (err) {
+  } catch (err: any) {
     console.log("THAT BAI: ", err);
-    showMessage("error", "Đăng nhập thất bại!");
-
+    showMessage("error", err.response?.data?.message || "Đăng nhập thất bại!");
     throw err;
   }
 };
@@ -77,4 +76,8 @@ export const PostOTP = async ({ _id, code }: { _id: string; code: string }) => {
     showMessage("error", "Đăng ký thất bại!");
     throw err;
   }
+};
+
+export const handleGoogleLogin = () => {
+  window.location.href = `${API_URL}/auth/google`;
 };

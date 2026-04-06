@@ -238,4 +238,16 @@ export class CartsService {
 
     return new ApiResponse('Xóa toàn bộ giỏ hàng thành công', null);
   }
+
+  async countCartItems(userId: string): Promise<ApiResponse<number>> {
+    const cart = await this.findOrCreateCart(userId);
+    const cartDetails = await this.cartDetailModel.find({
+      cart_id: cart._id,
+    });
+
+    return new ApiResponse(
+      'Số lượng sản phẩm trong giỏ hàng',
+      cartDetails.length,
+    );
+  }
 }

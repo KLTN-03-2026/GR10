@@ -1,29 +1,27 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 interface UserInfo {
-  // address?: string;
   email?: string;
   _id: string;
   name: string;
-  // phone: string;
-  // role: string;
 }
 
 type Store = {
   userInfo: UserInfo | null;
   setUserInfo: (info: UserInfo) => void;
+  clearUserInfo: () => void;
 };
 
 export const useUserInfo = create<Store>()(
   persist(
-    (set, get) => ({
-      userInfo: null,  
+    (set) => ({
+      userInfo: null,
       setUserInfo: (info) => set({ userInfo: info }),
+      clearUserInfo: () => set({ userInfo: null }),
     }),
     {
-      name: "userInfo", // name of the item in the storage (must be unique)
-      // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      name: "userInfo",
     }
   )
 );

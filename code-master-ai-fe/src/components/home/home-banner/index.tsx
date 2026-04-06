@@ -17,7 +17,7 @@ const HomeBaner = () => {
                         lớn.</div>
                     <div className="flex justify-start space-x-3 mt-6">
                         <div className="font-medium shadow-sm bg-brand-600 text-white px-5 py-2 rounded-full cursor-pointer hover:bg-brand-700">Xem khóa học</div>
-                        <div className="font-medium shadow-sm bg-white text-brand-600 px-5 py-2 rounded-full cursor-pointer hover:bg-brand-700">Bắt đầu học ngay</div>
+                        <div className="font-medium shadow-sm bg-white text-brand-600 px-5 py-2 rounded-full cursor-pointer hover:text-white hover:bg-brand-200">Bắt đầu học ngay</div>
                     </div>
 
                 </div>

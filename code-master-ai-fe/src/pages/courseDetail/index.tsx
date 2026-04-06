@@ -10,6 +10,7 @@ import {
 } from "../../data/courseDetail";
 import { useParams } from "react-router-dom";
 import { GetCoursesDetail } from "../../api/courseDetail";
+import { createCartItem } from "../../api/cart";
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
@@ -62,7 +63,7 @@ export default function CourseDetailPage() {
       try {
         if (!id) return;
         const data = await GetCoursesDetail(id);
-        setCourseDetail(data);
+        setCourseDetail(data.data);
       } catch (err) {
         console.error("Lỗi khi lấy chi tiết khóa học: ", err);
       }
@@ -70,6 +71,15 @@ export default function CourseDetailPage() {
 
     fetchCourseDetail();
   }, [id]);
+  const onCart = async () => {
+    if (!courseDetail) return;
+    try {
+      await createCartItem(courseDetail._id);
+      console.log("Thêm vào giỏ hàng thành công!");
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng: ", error);
+    }
+  };
   if (!courseDetail) {
     return (
       <div className="min-h-screen bg-brand-25 px-4 py-10">
@@ -173,9 +183,9 @@ export default function CourseDetailPage() {
                       Bạn sẽ học được gì?
                     </h3>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {courseDetail.learning_outcomes?.map((item) => (
+                      {courseDetail.learning_outcomes?.map((item, index) => (
                         <div
-                          key={item}
+                          key={index}
                           className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm"
                         >
                           <span className="mt-0.5 text-brand-600">✓</span>
@@ -192,8 +202,8 @@ export default function CourseDetailPage() {
                       Nội dung khóa học
                     </h3>
 
-                    <div className="space-y-4">
-                      {fakeSections.map((section, index) => {
+                    {/* <div className="space-y-4">
+                      {courseDetail.lessons.map((section, index) => {
                         const isOpen = openSectionIndex === index;
 
                         return (
@@ -221,7 +231,7 @@ export default function CourseDetailPage() {
 
                             {isOpen && (
                               <div className="space-y-3 border-t border-brand-50 px-5 py-4">
-                                {section.lessons.map((lesson) => (
+                                {section.map((lesson) => (
                                   <div
                                     key={lesson.title}
                                     className="flex items-center justify-between gap-4 text-sm"
@@ -252,7 +262,64 @@ export default function CourseDetailPage() {
                           </div>
                         );
                       })}
-                    </div>
+                    </div> */}
+
+                    {(activeTab === "intro" || activeTab === "content") && (
+                      <section>
+                        <h3 className="mb-5 text-2xl font-bold text-brand-800">
+                          Nội dung khóa học
+                        </h3>
+
+                        <div className="space-y-4">
+                          {courseDetail.lessons?.map((lesson, index) => (
+                            <div
+                              key={lesson._id}
+                              className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm"
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenSectionIndex(
+                                    openSectionIndex === index ? -1 : index,
+                                  )
+                                }
+                                className="flex w-full items-center justify-between px-5 py-4 text-left"
+                              >
+                                <div>
+                                  <p className="font-bold text-brand-900">
+                                    Bài {lesson.lesson_order}: {lesson.title}
+                                  </p>
+                                </div>
+                                <span className="text-xl text-brand-400">
+                                  {openSectionIndex === index ? "−" : "+"}
+                                </span>
+                              </button>
+
+                              {openSectionIndex === index && (
+                                <div className="space-y-3 border-t border-brand-50 px-5 py-4">
+                                  {lesson.content && (
+                                    <p className="text-sm text-slate-700">
+                                      {lesson.content}
+                                    </p>
+                                  )}
+
+                                  {lesson.video_url && (
+                                    <a
+                                      href={lesson.video_url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex rounded-lg bg-brand-50 px-3 py-2 text-sm font-bold text-brand-700"
+                                    >
+                                      Xem video bài học
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
                   </section>
                 )}
 
@@ -262,7 +329,7 @@ export default function CourseDetailPage() {
                       Yêu cầu đầu vào
                     </h3>
                     <ul className="space-y-3">
-                      {courseDetail.requirements.map((item) => (
+                      {courseDetail.requirements?.map((item) => (
                         <li
                           key={item}
                           className="flex items-start gap-3 text-slate-600"
@@ -310,7 +377,10 @@ export default function CourseDetailPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <button className="w-full rounded-2xl bg-brand-600 px-5 py-4 font-bold text-white transition hover:bg-brand-700">
+                  <button
+                    onClick={() => onCart()}
+                    className="w-full rounded-2xl bg-brand-600 px-5 py-4 font-bold text-white transition hover:bg-brand-700"
+                  >
                     Thêm vào giỏ hàng
                   </button>
                   <button className="w-full rounded-2xl border-2 border-brand-700 px-5 py-4 font-bold text-brand-700 transition hover:bg-brand-700 hover:text-white">
@@ -357,7 +427,7 @@ export default function CourseDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {fakeRelatedCourses.map((item) => (
+            {fakeRelatedCourses?.map((item) => (
               <div
                 key={item.id}
                 className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
