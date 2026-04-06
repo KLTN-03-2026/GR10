@@ -24,8 +24,12 @@ import { ResultsModule } from './module/results/results.module';
 import { RolesModule } from './module/roles/roles.module';
 import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
+<<<<<<< HEAD
 import { BlogsModule } from './module/blogs/blogs.module';
 import { StatisticsModule } from './module/statistics/statistics.module';
+=======
+import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
 
 @Module({
   imports: [
@@ -90,9 +94,13 @@ import { StatisticsModule } from './module/statistics/statistics.module';
 
     AuthModule,
 
+<<<<<<< HEAD
     BlogsModule,
 
     StatisticsModule,
+=======
+    AiAssistantModule
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
   ],
   controllers: [AppController],
   providers: [AppService],

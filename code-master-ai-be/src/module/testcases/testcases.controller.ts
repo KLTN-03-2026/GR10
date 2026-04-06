@@ -6,29 +6,38 @@ import { UpdateTestcaseDto } from './dto/update-testcase.dto';
 @Controller('testcases')
 export class TestcasesController {
   constructor(private readonly testcasesService: TestcasesService) {}
-
-  @Post()
-  create(@Body() createTestcaseDto: CreateTestcaseDto) {
-    return this.testcasesService.create(createTestcaseDto);
+  @Post('generate-ai/:assignmentId')
+  async generateAI(
+    @Param('assignmentId') assignmentId: string,
+    @Body('solutionCode') solutionCode: string,
+    @Body('constraints') constraints: string,
+    @Body('numberOfTestCases') numberOfTestCases: number,
+  ){
+    return this.testcasesService.generateTestCaseByAI(assignmentId,solutionCode,constraints,numberOfTestCases)
   }
 
-  @Get()
-  findAll() {
-    return this.testcasesService.findAll();
-  }
+  // @Post()
+  // create(@Body() createTestcaseDto: CreateTestcaseDto) {
+  //   return this.testcasesService.create(createTestcaseDto);
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.testcasesService.findOne(+id);
-  }
+  // @Get()
+  // findAll() {
+  //   return this.testcasesService.findAll();
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTestcaseDto: UpdateTestcaseDto) {
-    return this.testcasesService.update(+id, updateTestcaseDto);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.testcasesService.findOne(+id);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testcasesService.remove(+id);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateTestcaseDto: UpdateTestcaseDto) {
+  //   return this.testcasesService.update(+id, updateTestcaseDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.testcasesService.remove(+id);
+  // }
 }

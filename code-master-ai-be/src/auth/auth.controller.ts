@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Get,
+  Req,
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -16,24 +17,41 @@ import {
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { Public, ResponseMessage } from '@/decorator/customize';
 import { GoogleAuthGuard } from './passport/google-auth.guard';
-import type { Response } from 'express';
+import { JwtAuthGuard } from './passport/jwt-auth.guard';
+import { GithubAuthGuard } from './passport/github-auth.guard';
+import { UsersService } from '@/module/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  usersService: any;
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {}
 
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
   @ResponseMessage('Fetch login')
-  handleLogin(@Request() req) {
-    return this.authService.login(req.user);
+  handleLogin(@Request() req, @Res() res: Response) {
+    return this.authService.login(req.user, res);
+  }
+  @Post('refresh')
+  @Public()
+  async refresh(@Req() req, @Res() res: Response) {
+    return this.authService.refreshToken(req, res);
   }
 
   @Post('register')
   @Public()
   register(@Body() registerDto: CreateAuthDto) {
     return this.authService.handleRegister(registerDto);
+  }
+  // dang xuat
+  @Post('logout')
+  // @UseGuards(JwtAuthGuard) // nguoi dung dang nhap roi moi logout
+  logout(@Req() req, @Res() res) {
+    return this.authService.logout(req, res);
   }
 
   @Post('check-code')
@@ -67,18 +85,22 @@ export class AuthController {
   async googleAuth(@Request() req) {}
 
   @Get('google/callback')
-  @Public()
+  // @Public()
   @UseGuards(GoogleAuthGuard)
-  async googleAuthRedirect(@Request() req, @Res() res: Response) {
-    const data = await this.authService.validateOAuthLogin(req.user);
-    const frontendUrl =
-      process.env.FRONTEND_URL ||
-      'https://code-ai-master-kltn-2026-10.vercel.app';
+  async googleAuthRedirect(@Request() req, @Res() res) {
+    return this.authService.validateOAuthLogin(req.user, res);
+  }
+  //login github
+  @Get('github')
+  @Public()
+  @UseGuards(GithubAuthGuard)
+  async githubAuth(@Request() req) {}
 
-    return res.redirect(
-      `${frontendUrl}/auth/google/callback?access_token=${data.access_token}&user=${encodeURIComponent(
-        JSON.stringify(data.user),
-      )}`,
-    );
+  @Get('github/callback')
+  @Public()
+  @UseGuards(GithubAuthGuard)
+  async githubAuthRedirect(@Req() req, @Res() res) {
+    // const user = await this.userService.createGithubUser(req.user);
+    return this.authService.validateOAuthLogin(req.user, res);
   }
 }

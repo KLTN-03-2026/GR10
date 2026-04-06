@@ -5,14 +5,12 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User {
-  // Dùng ? cho các trường có thể bỏ trống
   @Prop() 
   name?: string; 
 
   @Prop({ unique: true, sparse: true }) 
   username?: string;
 
-  // Dùng ! cho các trường bắt buộc (required: true)
   @Prop({ required: true, unique: true }) 
   email!: string; 
 
@@ -20,12 +18,14 @@ export class User {
   password!: string;
 
   @Prop() 
-  avatar?: string;
+  image?: string;
 
   @Prop()
   googleId?: string;
+  @Prop()
+  githubId?: string
 
-  @Prop({ default: 'local' }) // 'local' là đăng ký thường, 'google' là từ Google
+  @Prop({ default: 'local' }) 
   provider?: string;
 
   @Prop() 
@@ -36,6 +36,9 @@ export class User {
 
   @Prop({ default: 'active' }) 
   status?: string;
+  
+  @Prop({ type: String, default: null })
+  refreshToken?: string; // Lưu token để đối chiếu
 
   // CÁC TRƯỜNG DÙNG CHO XÁC THỰC
   @Prop({ default: false })

@@ -2,26 +2,41 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { User } from './entities/user.entity';
+<<<<<<< HEAD
 import { hashPasswordHelper } from '@/helpers/util';
 import {
   CodeAuthDto,
   CreateAuthDto,
   changePasswordAuthDto,
 } from '@/auth/dto/create-auth.dto';
+=======
+import { generateVerificationCode, hashPasswordHelper } from '@/helpers/util';
+import { CodeAuthDto, CreateAuthDto, changePasswordAuthDto } from '@/auth/dto/create-auth.dto';
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+<<<<<<< HEAD
 // import aqp from 'api-query-params';
 import * as crypto from 'crypto';
 import { Role } from '../roles/entities/role.entity';
+=======
+// import aqp from 'api-query-params'; 
+import * as crypto from 'crypto'; 
+import { Role } from '../roles/entities/role.entity';
+import { UploadService } from '@/upload/upload.service';
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
 
 @Injectable()
 export class UsersService {
+  // roleModel: any;
   constructor(
     @InjectModel(Role.name) private roleModel: Model<Role>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Role.name) private roleModel: Model<Role>,
     private readonly mailerService: MailerService,
+    private readonly uploadService:UploadService
   ) {}
 
   isEmailExist = async (email: string) => {
@@ -30,7 +45,7 @@ export class UsersService {
     return false;
   };
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto,file?: Express.Multer.File) {
     const { name, email, password, phone, address, image } = createUserDto;
 
     // check Email
@@ -40,6 +55,7 @@ export class UsersService {
         `Email đã tồn tại: ${email}, vui lòng sử dụng email khác`,
       );
     }
+<<<<<<< HEAD
 
     // hash password
     const hashPassword = await hashPasswordHelper(password);
@@ -53,6 +69,20 @@ export class UsersService {
     });
 
     return { _id: user._id };
+=======
+    let imageUrl = createUserDto.image;
+    if(file){
+      const uploadResult = await this.uploadService.uploadFile(file);
+      imageUrl = uploadResult.secure_url;
+    }
+    // hash password
+    const hashPassword = await hashPasswordHelper(password);
+    const user = await this.userModel.create({
+      name, email, password: hashPassword, phone, address, image:imageUrl
+    });
+    console.log("image:",user.image)
+    return { _id: user._id ,image:user.image};
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
   }
 
   async findAll(query: any, current: number, pageSize: number) {
@@ -117,7 +147,11 @@ export class UsersService {
 
     const hashPassword = await hashPasswordHelper(password);
     // Thay thế uuidv4() bằng crypto.randomUUID() để sửa lỗi ESM
+<<<<<<< HEAD
     const codeId = crypto.randomUUID();
+=======
+    const codeId = await generateVerificationCode(5); 
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
     let defaultRole = await this.roleModel.findOne({ role_name: 'user' });
     if (!defaultRole) {
       defaultRole = await this.roleModel.create({
@@ -125,6 +159,10 @@ export class UsersService {
         description: 'Tài khoản người học mặc định',
       });
     }
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
     const user = await this.userModel.create({
       name,
       email,
@@ -135,14 +173,28 @@ export class UsersService {
       codeExpired: dayjs().add(5, 'minutes'),
     });
 
+<<<<<<< HEAD
     await this.mailerService.sendMail({
       to: user.email!, // Thêm ! để tránh lỗi TS
+=======
+    this.mailerService.sendMail({
+      to: user.email!, 
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
       subject: 'Kích hoạt tài khoản CodeMaster AI',
       template: 'register',
       context: { name: user?.name ?? user.email, activationCode: codeId },
     });
 
     return { _id: user._id, email: user.email };
+  }
+  // refresh token
+  async updateRefreshToken(_id: string, refreshToken: string) {
+  return await this.userModel.findByIdAndUpdate(_id, { refreshToken: refreshToken });
+}
+
+  // lay id de kiem tra refresh token
+  async refreshID(id:string){
+    return await this.userModel.findById(id);
   }
 
   async handleActive(data: CodeAuthDto) {
@@ -173,7 +225,7 @@ export class UsersService {
     if (user.isActive)
       throw new BadRequestException('Tài khoản này đã được kích hoạt');
 
-    const codeId = crypto.randomUUID();
+    const codeId = await generateVerificationCode(5);
     await user.updateOne({ codeId, codeExpired: dayjs().add(5, 'minutes') });
 
     this.mailerService.sendMail({
@@ -191,7 +243,8 @@ export class UsersService {
     if (!user)
       throw new BadRequestException('Tài khoản người dùng không tồn tại');
 
-    const codeId = crypto.randomUUID();
+    const codeId = await generateVerificationCode(5);
+    console.log("check code id",codeId);
     await user.updateOne({ codeId, codeExpired: dayjs().add(5, 'minutes') });
 
     this.mailerService.sendMail({
@@ -231,6 +284,7 @@ export class UsersService {
 
     return { success: true, message: 'Thay đổi mật khẩu thành công' };
   }
+<<<<<<< HEAD
   // login google
   async createGoogleUser(profile: any) {
     const user = this.userModel.create({
@@ -244,3 +298,73 @@ export class UsersService {
     return user;
   }
 }
+=======
+  // // login google
+  // async createGoogleUser(profile:any){
+  //   let user = await this.userModel.findOne({googleId: profile.googleId});
+  //   if(!user){
+  //     const existingUser = await this.userModel.findOne({ email: profile.email });
+  //     if (existingUser) {
+  //       throw new BadRequestException(`Email ${profile.email} đã được đăng ký bằng phương thức khác. Vui lòng sử dụng đúng phương thức để đăng nhập!`);
+  //     }
+  //      user = await this.userModel.create({
+  //     name: profile.name,
+  //     email: profile.email,
+  //     image: profile.avatar,
+  //     googleId: profile.googleId,
+  //     provider: 'google',
+  //     isActive: true, // Đăng nhập Google thì tự động kích hoạt luôn
+  //   });
+  //   }
+  //   return user;
+  // }
+  // //login github
+  // async createGithubUser(profile:any){
+  //   let user = await this.userModel.findOne({githubId:profile.githubId});
+  //   if(!user){
+  //     const existingUser = await this.userModel.findOne({email:profile.email});
+  //     if(existingUser){
+  //       throw new BadRequestException(`Email ${profile.email} đã được đăng ký bằng phương thức khác. Vui lòng sử dụng đúng phương thức để đăng nhập!`);
+  //     }
+  //      user = await this.userModel.create({
+  //     name:profile.name,
+  //     email:profile.email,
+  //     image:profile.image,
+  //     githubId:profile.githubId,
+  //     provider: 'github',
+  //     isActive: true, 
+  //   });
+  //   }
+  //   return user;
+  // }
+  //login bang google+github
+  async createOAuthUser(profile: any) {
+  // Kiểm tra email đã tồn tại bằng provider khác chưa
+  const existingUser = await this.userModel.findOne({ email: profile.email });
+  if (existingUser) {
+    // Nếu đúng provider thì trả về luôn (login lần 2 trở đi)
+    const isSameProvider =
+      (profile.provider === 'google' && existingUser.googleId === profile.googleId) ||
+      (profile.provider === 'github' && existingUser.githubId === profile.githubId);
+
+    if (isSameProvider) return existingUser;
+
+    // Sai provider thì báo lỗi
+    throw new BadRequestException(
+      `Email ${profile.email} đã được đăng ký bằng phương thức khác!`
+    );
+  }
+
+  // Tạo user mới
+  return await this.userModel.create({
+    name: profile.name,
+    email: profile.email,
+    image: profile.image,
+    googleId: profile.provider === 'google' ? profile.googleId : undefined,
+    githubId: profile.provider === 'github' ? profile.githubId : undefined,
+    provider: profile.provider,
+    isActive: true,
+  });
+}
+}
+>>>>>>> 346bb36e7977a31228eb3b08959be79a54710e4a
