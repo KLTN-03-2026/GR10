@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          25: "#f3f2ef", 
+          25: "#f3f2ef",
           50: "#dad7cd",   // nền
           100: "#cfd5c2",
           200: "#a3b18a",  // phụ

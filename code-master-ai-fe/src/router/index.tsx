@@ -17,6 +17,7 @@ import CourseManage from "../pages/courseManage";
 import ExerciseManage from "../pages/exerciseManage";
 import UserManage from "../pages/userManage";
 import CategoryManage from "../pages/categoryManage";
+import RevenueStatisticsPage from "../pages/revenueManage";
 
 export const router = createBrowserRouter([
   {
@@ -77,6 +78,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
+      { path: "/admin", element: <RevenueStatisticsPage /> },
       { path: "articles", element: <ArticleManage /> },
       { path: "courses", element: <CourseManage /> },
       { path: "exercises", element: <ExerciseManage /> },
