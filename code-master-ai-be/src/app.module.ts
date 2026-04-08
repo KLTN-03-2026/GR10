@@ -6,7 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './module/users/users.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+// import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { AssignmentsModule } from './module/assignments/assignments.module';
 import { CartDetailsModule } from './module/cart-details/cart-details.module';
 import { CartsModule } from './module/carts/carts.module';
@@ -53,14 +54,14 @@ import { join } from 'path';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    
+
     // cau hinh ket noi mongodb
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
 
     //  Cấu hình Mailer để sửa lỗi UnknownDependenciesException
@@ -68,7 +69,7 @@ import { join } from 'path';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: "smtp.gmail.com",
+          host: 'smtp.gmail.com',
           port: 465,
           secure: true,
           auth: {
@@ -82,7 +83,7 @@ import { join } from 'path';
         template: {
           // dir: process.cwd() + '/src/mail/template/',
           dir: join(__dirname, 'mail/template'),
-          adapter: new HandlebarsAdapter(), 
+          adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
           },
@@ -95,7 +96,7 @@ import { join } from 'path';
     BlogsModule,
 
     StatisticsModule,
-    AiAssistantModule
+    AiAssistantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
