@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TestcasesService } from './testcases.service';
 import { CreateTestcaseDto } from './dto/create-testcase.dto';
 import { UpdateTestcaseDto } from './dto/update-testcase.dto';
+import { ParseObjectIdPipe } from '@/common/pipes/parse-object-id.pipe';
 
 @Controller('testcases')
 export class TestcasesController {
@@ -13,22 +23,25 @@ export class TestcasesController {
   }
 
   @Get()
-  findAll() {
-    return this.testcasesService.findAll();
+  findAll(@Query('code_assignment_id') codeAssignmentId?: string) {
+    return this.testcasesService.findAll(codeAssignmentId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.testcasesService.findOne(+id);
+  findOne(@Param('id', ParseObjectIdPipe) id: string) {
+    return this.testcasesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTestcaseDto: UpdateTestcaseDto) {
-    return this.testcasesService.update(+id, updateTestcaseDto);
+  update(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() updateTestcaseDto: UpdateTestcaseDto,
+  ) {
+    return this.testcasesService.update(id, updateTestcaseDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testcasesService.remove(+id);
+  remove(@Param('id', ParseObjectIdPipe) id: string) {
+    return this.testcasesService.remove(id);
   }
 }
