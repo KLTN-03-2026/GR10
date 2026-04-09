@@ -10,11 +10,11 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @Post('submit')
-  @UseGuards(JwtAuthGuard) // Bắt buộc user phải đăng nhập
+  @UseGuards(JwtAuthGuard) 
   async submitCode(
     @Req() req,
     @Body('assignmentId') assignmentId: string,
-    @Body('language') language: string, // Gửi tên ngôn ngữ: "python", "cpp", "javascript"
+    @Body('language') language: string, 
     @Body('sourceCode') sourceCode: string,
   ){
     const userId = req.user._id;

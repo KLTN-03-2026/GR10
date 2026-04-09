@@ -150,7 +150,7 @@ export class UsersService {
     return { _id: user._id, email: user.email };
   }
   // refresh token
-  async updateRefreshToken(_id: string, refreshToken: string) {
+  async updateRefreshToken(_id: string, refreshToken: string | null) {
   return await this.userModel.findByIdAndUpdate(_id, { refreshToken: refreshToken });
 }
 
