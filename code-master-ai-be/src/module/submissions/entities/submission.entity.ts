@@ -5,26 +5,26 @@ export type SubmissionDocument = HydratedDocument<Submission>;
 
 @Schema({ timestamps: true })
 export class Submission {
-  @Prop({ type: Types.ObjectId, ref: 'Assignment', required: true }) 
-  assignment_id!: Types.ObjectId ;
+  @Prop({ type: Types.ObjectId, ref: 'Assignment', required: true })
+  assignment_id!: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true }) 
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user_id!: Types.ObjectId;
 
-  @Prop({ type: String, required: true }) 
+  @Prop({ type: String, required: true })
   code!: string;
 
-  @Prop({ type: String, required: true }) 
-  language!: string; 
+  @Prop({ type: String, required: true })
+  language!: string;
 
-  @Prop({ type: Number, default: 0 }) 
+  @Prop({ type: Number, default: 0 })
   score!: number;
 
-  @Prop({ type: String, default: 'pending' }) 
+  @Prop({ type: String, default: 'pending' })
   status!: string;
 
   @Prop()
-ai_hint?: string;
+  ai_hint?: string;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);
