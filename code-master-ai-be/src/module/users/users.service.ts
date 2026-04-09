@@ -132,7 +132,7 @@ export class UsersService {
     await this.mailerService.sendMail({
       to: user.email!, 
       subject: 'Kích hoạt tài khoản CodeMaster AI',
-      template: 'register',
+      template: './register',
       context: { name: user?.name ?? user.email, activationCode: codeId },
     });
     
