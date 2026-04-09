@@ -129,7 +129,7 @@ export class UsersService {
       codeExpired: dayjs().add(5, 'minutes'),
     });
 
-    await this.mailerService.sendMail({
+     this.mailerService.sendMail({
       to: user.email!, 
       subject: 'Kích hoạt tài khoản CodeMaster AI',
       template: './register',
