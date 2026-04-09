@@ -82,7 +82,7 @@ import { join } from 'path';
         },
         template: {
           // dir: process.cwd() + '/dist/mail/template/',
-          dir: join(__dirname, 'dist/mail/template'),
+          dir: join(__dirname, 'mail/template'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
