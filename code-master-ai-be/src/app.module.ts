@@ -81,8 +81,8 @@ import { join } from 'path';
           from: '"CodeMaster AI" <no-reply@codemaster.ai>',
         },
         template: {
-          dir: process.cwd() + '/dist/mail/template/',
-          // dir: join(__dirname, '/dist/mail/template'),
+          // dir: process.cwd() + '/dist/mail/template/',
+          dir: join(__dirname, 'dist/mail/template'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
