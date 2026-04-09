@@ -82,8 +82,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
           from: '"CodeMaster AI" <no-reply@codemaster.ai>',
         },
         template: {
-          dir: process.cwd() + 'dist/mail/template/',
-          // dir: join(__dirname, 'mail/template'),
+          // dir: process.cwd() + 'dist/mail/template/',
+          dir: join(__dirname, 'template'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
