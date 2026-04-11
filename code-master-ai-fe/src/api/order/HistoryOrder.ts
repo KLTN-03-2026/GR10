@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_URL = "https://codeaimaster-kltn-2026-10.onrender.com/api/v1";
+import axios from "../../utils/axios";
 
 export interface OrderCourse {
   _id: string;
@@ -86,20 +84,11 @@ export interface OrderDetailResponse {
 export const GetHistoryOrder = async (
   params: GetHistoryOrderParams = {},
 ): Promise<HistoryOrderResponse> => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("Không tìm thấy token đăng nhập");
-  }
-
   const { current = 1, pageSize = 10, status } = params;
-  const url = `${API_URL}/orders/my-orders`;
 
   try {
-    const res = await axios.get<HistoryOrderResponse>(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    // Không cần nối API_URL và gán Token nữa vì axios custom đã lo
+    const res = await axios.get<HistoryOrderResponse>("/orders/my-orders", {
       params: {
         current,
         pageSize,
@@ -118,21 +107,9 @@ export const GetHistoryOrder = async (
 export const GetOrderDetail = async (
   orderId: string,
 ): Promise<OrderDetailResponse> => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("Không tìm thấy token đăng nhập");
-  }
-
   try {
-    const res = await axios.get<OrderDetailResponse>(
-      `${API_URL}/orders/${orderId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    // Code siêu ngắn gọn
+    const res = await axios.get<OrderDetailResponse>(`/orders/${orderId}`);
 
     console.log("LẤY CHI TIẾT ĐƠN HÀNG THÀNH CÔNG:", res.data);
     return res.data;

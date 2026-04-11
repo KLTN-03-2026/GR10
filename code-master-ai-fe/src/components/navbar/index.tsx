@@ -58,15 +58,11 @@ const Navbar = () => {
             // ),
             onClick: async () => {
                 try {
-                    // 1. Gọi Backend để xóa Cookie
                     await PostLogout(); 
                 } catch (error) {
                     console.error("Lỗi khi đăng xuất:", error);
                 } finally {
-                    // 2. Zustand dọn dẹp bộ nhớ (Không dùng localStorage.clear() nữa)
                     clearUserInfo(); 
-                    
-                    // 3. Dùng window.location.href thay vì navigate để trang web được F5 sạch sẽ 100%
                     window.location.href = '/login';
                 }
             },

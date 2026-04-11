@@ -1,14 +1,17 @@
-import axios from "axios";
-import { API_URL } from "../auth";
+import axios from "../../utils/axios";
 
-export const GetCoursesDetail = async (id :string) => {
-  const Url = `${API_URL}/courses/${id}`;
+export interface CourseDetailResponse {
+  message: string;
+  data: any; 
+}
+
+export const GetCoursesDetail = async (id: string): Promise<CourseDetailResponse> => {
   try {
-    const res = await axios.get(Url);
-    console.log("THANH CONG: ", res.data);
+    const res = await axios.get<CourseDetailResponse>(`/courses/${id}`);
+    console.log("LẤY CHI TIẾT KHÓA HỌC THÀNH CÔNG: ", res.data);
     return res.data;
-  } catch (err) {
-    console.log("THAT BAI: ", err);
+  } catch (err: any) {
+    console.log("LẤY CHI TIẾT KHÓA HỌC THẤT BẠI: ", err.response?.data || err);
     throw err;
   }
 };

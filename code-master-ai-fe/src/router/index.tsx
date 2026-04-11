@@ -25,6 +25,7 @@ import LessonPage from "../pages/lesson";
 import Quizz from "../pages/quizz";
 import GithubAuthCallback from "../pages/auth/GithubAuthCallback";
 import RevenueStatisticsPage from "../pages/revenueManage";
+import ExercisePage from "../pages/lesson/excersite";
 
 export const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
         path: "quiz/:id",
         element: <Quizz />,
       },
+      {
+      path: "exercise",
+      element: <ExercisePage />,
+    }
     ],
   },
   {
