@@ -26,153 +26,133 @@ export class AuthService {
   async login(user: any, res: any) {
     const accessExpire = process.env.JWT_ACCESS_EXPIRE || '15m';
     const refreshExpire = process.env.JWT_REFRESH_EXPIRE || '7d';
-    const accessCookieAge =
-      parseInt(process.env.COOKIE_ACCESS_MAX_AGE as string, 10) || 900000;
-    const refreshCookieAge =
-      parseInt(process.env.COOKIE_REFRESH_MAX_AGE as string, 10) || 604800000;
+    const accessCookieAge = parseInt(process.env.COOKIE_ACCESS_MAX_AGE as string, 10) || 900000;
+    const refreshCookieAge = parseInt(process.env.COOKIE_REFRESH_MAX_AGE as string, 10) || 604800000;
 
-    const payload = { username: user.email, sub: user._id };
-    // song 15'
-    const token = this.jwtService.sign(payload, {
-      expiresIn: accessExpire as any,
-    });
-    // song 7 ngay
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: refreshExpire as any,
-    });
+    const payload = { username: user.email, sub: user._id.toString() };
+    
+    // Cấp token
+    const token = this.jwtService.sign(payload, { expiresIn: accessExpire as any });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: refreshExpire as any });
 
     await this.usersService.updateRefreshToken(user._id, refreshToken);
-    // await this.userModel.findByIdAndUpdate(user._id, {
-    //   refreshToken: refreshToken,
-    // });
-    // Set Access Token vào Cookie (15 phút)
-    res.cookie('access_token', token, {
+
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieBase = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: accessCookieAge, // 15 phút
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax' as const,
+    };
+
+    res.cookie('access_token', token, {
+      ...cookieBase,
+      maxAge: accessCookieAge,
     });
 
-    //  Set Refresh Token vào Cookie (7 ngày)
     res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      path: '/api/v1/auth/refresh', //  Cookie này CHỈ gửi đi khi gọi API refresh
-      // path:'/',
-      maxAge: refreshCookieAge, // 7 ngày
+      ...cookieBase,
+      path: '/', // Dùng '/' để dễ quản lý và xóa
+      maxAge: refreshCookieAge, 
     });
+
     return res.status(HttpStatus.OK).json({
       user: { email: user.email, _id: user._id, name: user.name },
       message: 'Đăng nhập thành công!',
     });
-
-    // return res.status(HttpStatus.OK).json({
-    //   user: { email: user.email, _id: user._id, name: user.name },
-    //   access_token: token,
-    // });
   }
 
-  // Refresh token
   async refreshToken(req: any, res: any) {
-    const accessExpire = process.env.JWT_ACCESS_EXPIRE || '15m';
-    const refreshExpire = process.env.JWT_REFRESH_EXPIRE || '7d';
-    const accessCookieAge =
-      parseInt(process.env.COOKIE_ACCESS_MAX_AGE as string, 10) || 900000;
-    const refreshCookieAge =
-      parseInt(process.env.COOKIE_REFRESH_MAX_AGE as string, 10) || 604800000;
+  const accessExpire = process.env.JWT_ACCESS_EXPIRE || '15m';
+  const accessCookieAge =
+    parseInt(process.env.COOKIE_ACCESS_MAX_AGE as string, 10) || 900000;
+
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieBase = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax' as const,
+  };
+
+  const refreshToken = req.cookies['refresh_token'];
+
+  // Hàm dọn dẹp cookie
+  const clearAll = () => {
+    res.clearCookie('access_token', cookieBase);
+    res.clearCookie('refresh_token', { ...cookieBase, path: '/' });
+  };
+  if (!refreshToken) {
+    clearAll();
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: 'Không tìm thấy Refresh Token. Vui lòng login lại!' });
+  }
+
+  try {
+    const decoded = this.jwtService.verify(refreshToken);
+
+    // Kiểm tra token có khớp DB không
+    const user = await this.usersService.refreshID(decoded.sub);
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new UnauthorizedException('Refresh Token không hợp lệ hoặc đã bị thu hồi!');
+    }
+
+    const payload = { username: user.email, sub: user._id };
+    const newAccessToken = this.jwtService.sign(payload, {
+      expiresIn: accessExpire as any,
+    });
+
+    res.cookie('access_token', newAccessToken, {
+      ...cookieBase,
+      maxAge: accessCookieAge,
+    });
+
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'Làm mới Token thành công!' });
+
+  } catch (error) {
+    const decoded = this.jwtService.decode(refreshToken) as any;
+    if (decoded?.sub) {
+      await this.usersService.updateRefreshToken(decoded.sub.toString(), null);
+      console.log(`[Refresh hết hạn] Đã xóa token DB của user: ${decoded.sub}`);
+    }
+
+    clearAll();
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: 'Phiên đăng nhập hết hạn.' });
+  }
+}
+
+  async logout(req: any, res: any) {
     try {
-      // Lấy refresh token từ cookie
-      const refreshToken = req.cookies['refresh_token'];
-      if (!refreshToken) {
-        throw new UnauthorizedException(
-          'Không tìm thấy Refresh Token. Vui lòng login lại!',
-        );
-      }
-
-      // Verify token xem còn hạn không
-      const decoded = this.jwtService.verify(refreshToken);
-
-      // Kiểm tra DB xem token này có khớp với token lưu ở User không (Chống token giả mạo)
-      // const user = await this.userModel.findById(decoded.sub);
-      const user = await this.usersService.refreshID(decoded.sub);
-      if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException(
-          'Refresh Token không hợp lệ hoặc đã bị thu hồi!',
-        );
-      }
-      //  Cấp Access Token MỚI
-      const payload = { username: user.email, sub: user._id };
-      console.log('cap access token moi');
-      const newAccessToken = this.jwtService.sign(payload, {
-        expiresIn: accessExpire as any,
-      });
-      const newRefreshToken = this.jwtService.sign(payload, {
-        expiresIn: refreshExpire as any,
-      });
-      await this.usersService.updateRefreshToken(
-        user._id.toString(),
-        newRefreshToken,
-      );
+      const isProd = process.env.NODE_ENV === 'production';
       const cookieBase = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none' as const,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax' as const,
       };
 
-      // Cập nhật lại Cookie Access Token
-      res.cookie('access_token', newAccessToken, {
-        ...cookieBase,
-        maxAge: accessCookieAge,
-      });
-      res.cookie('refresh_token', newRefreshToken, {
-        ...cookieBase,
-        path: '/api/v1/auth/refresh',
-        // path: '/',
-        maxAge: refreshCookieAge,
-      });
-
-      return res
-        .status(HttpStatus.OK)
-        .json({ message: 'Làm mới Token thành công!' });
-    } catch (error) {
-      // Nếu lỗi (hết hạn, sai token), xóa sạch cookie bắt đăng nhập lại
-      const cookieOptions = { httpOnly: true };
-      res.clearCookie('access_token', cookieOptions);
-      res.clearCookie('refresh_token', {
-        ...cookieOptions,
-        // path: '/'
-        path: '/api/v1/auth/refresh',
-      });
-
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: 'Phiên đăng nhập hết hạn.' });
-    }
-  }
-
-  // logout
-  async logout(req, res) {
-    try {
-      const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none' as const,
-      };
       const refreshToken = req.cookies['refresh_token'];
+      
       if (refreshToken) {
         try {
-          const decoded = this.jwtService.verify(refreshToken);
-          const clear: any = null;
-          await this.usersService.updateRefreshToken(decoded.sub, clear);
-        } catch {}
+          const decoded = this.jwtService.decode(refreshToken) as any;
+          if (decoded && decoded.sub) {
+            await this.usersService.updateRefreshToken(decoded.sub.toString(), null);
+            console.log(`[Logout] Đã dọn sạch DB cho user: ${decoded.sub}`);
+          }
+        } catch (err) {
+          console.error('Lỗi khi decode logout:', err);
+        }
       }
-      res.clearCookie('access_token', cookieOptions);
+
+      res.clearCookie('access_token', cookieBase);
       res.clearCookie('refresh_token', {
-        ...cookieOptions,
-        path: '/api/v1/auth/refresh',
-        // path: '/'
+        ...cookieBase,
+        path: '/',
       });
+      
       return res.status(HttpStatus.OK).json({
         statusCode: 200,
         message: 'Đăng xuất thành công. Hẹn gặp lại bạn!',
@@ -307,7 +287,7 @@ export class AuthService {
     const cookieBase = {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'none' as const,
+      sameSite: isProd ? 'none' : 'lax' as const,
     };
 
     res.cookie('access_token', accessToken, {

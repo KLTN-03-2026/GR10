@@ -8,7 +8,6 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './passport/local.strategy';
 import { JwtStrategy } from './passport/jwt.strategy';
 import { GoogleStrategy } from './passport/google.strategy';
-import { GithubAuthGuard } from './passport/github-auth.guard';
 import { GithubStrategy } from './passport/github.strategy';
 
 @Module({

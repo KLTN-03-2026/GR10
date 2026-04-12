@@ -81,7 +81,7 @@ const CustomerInfo: React.FC<Props> = ({ orderId }) => {
 
       <div className="pt-4 mt-4 border-t border-[#ddd7ca]">
         <div className="flex items-center gap-2 text-[#23422a] font-semibold text-sm">
-         <ShieldCheck/> <span>Giao dịch an toàn</span>
+          <ShieldCheck /> <span>Giao dịch an toàn</span>
         </div>
       </div>
     </div>

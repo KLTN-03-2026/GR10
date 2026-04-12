@@ -47,7 +47,7 @@ export class PaymentsController {
 
     await this.paymentsService.markPaymentPaidAndClearCartByOrder(orderid);
     return res.redirect(
-      `https://code-ai-master-kltn-2026-10.vercel.app//payment-success/${orderid}`,
+      `https://code-ai-master-kltn-2026-10.vercel.app/payment-success/${orderid}`,
     );
   }
   @Post('momo-ipn')
@@ -68,7 +68,7 @@ export class PaymentsController {
     }
 
     return res.redirect(
-      `https://code-ai-master-kltn-2026-10.vercel.app//payment-success/${orderId}`,
+      `https://code-ai-master-kltn-2026-10.vercel.app/payment-success/${orderId}`,
     );
   }
 

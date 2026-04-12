@@ -59,9 +59,6 @@ export default function GoogleAuthCallback() {
       }
 
       const user = JSON.parse(decodeURIComponent(userString));
-
-      // ✅ Không dùng localStorage, lưu vào Zustand
-      // Cookie đã được backend set tự động
       setUserInfo(user);
       showMessage("success", "Đăng nhập Google thành công!");
       navigate("/");
