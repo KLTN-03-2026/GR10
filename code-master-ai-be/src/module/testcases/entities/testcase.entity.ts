@@ -3,7 +3,7 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type TestCaseDocument = HydratedDocument<TestCase>;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'testcases' })
 export class TestCase {
   @Prop({ type: Types.ObjectId, ref: 'CodeAssignment', required: true })
   code_assignment_id!: Types.ObjectId;

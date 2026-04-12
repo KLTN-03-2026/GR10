@@ -4,14 +4,14 @@ import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
 const Layout = () => {
-    return (
-        <div>
-            <Navbar />
-            <Outlet />
+  return (
+    <div>
+      <Navbar />
+      <Outlet />
 
-            {/* <Footer /> */}
-        </div>
-    )
-}
+      {/* <Footer /> */}
+    </div>
+  );
+};
 
 export default Layout;

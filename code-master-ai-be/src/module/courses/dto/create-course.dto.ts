@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsMongoId } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsMongoId, IsArray, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateCourseDto {
@@ -18,4 +18,15 @@ export class CreateCourseDto {
 
   @IsMongoId()
   category: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  learning_outcomes: string[];
+
+  // ✅ Yêu cầu đầu vào
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  requirements: string[];
 }

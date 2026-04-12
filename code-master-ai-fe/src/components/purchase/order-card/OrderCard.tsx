@@ -1,4 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import type { PurchaseItem } from "../../../types/purchase/purchase";
+import { Calendar, CreditCard } from "lucide-react";
 
 interface OrderCardProps {
   order: PurchaseItem;
@@ -22,16 +24,23 @@ const statusMap = {
   },
 } as const;
 
+const fallbackImage = "https://via.placeholder.com/300x200?text=Course";
+
 const OrderCard = ({ order }: OrderCardProps) => {
+  const navigate = useNavigate();
   const statusConfig = statusMap[order.status];
+  const imageSrc = order.thumbnail || fallbackImage;
 
   return (
     <div className="flex flex-col gap-5 rounded-3xl border border-[#e6e2d8] bg-white p-5 shadow-sm transition hover:shadow-md md:flex-row md:items-center">
-      <div className="h-28 w-full overflow-hidden rounded-2xl md:h-28 md:w-44 shrink-0">
+      <div className="h-28 w-full shrink-0 overflow-hidden rounded-2xl md:h-28 md:w-44">
         <img
-          src={order.thumbnail}
+          src={imageSrc}
           alt={order.title}
           className="h-full w-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = fallbackImage;
+          }}
         />
       </div>
 
@@ -47,16 +56,12 @@ const OrderCard = ({ order }: OrderCardProps) => {
 
           <div className="flex flex-wrap gap-4 text-sm text-[#424842]">
             <span className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">
-                calendar_today
-              </span>
+              <Calendar size={16} />
               {order.date}
             </span>
 
             <span className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">
-                payments
-              </span>
+              <CreditCard size={16} />
               {order.paymentMethod}
             </span>
           </div>
@@ -79,6 +84,9 @@ const OrderCard = ({ order }: OrderCardProps) => {
 
           <button
             type="button"
+            onClick={() => {
+              navigate(`/order-detail/${order.id}`);
+            }}
             className="rounded-xl bg-[#23422a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3a5a40]"
           >
             Xem chi tiết

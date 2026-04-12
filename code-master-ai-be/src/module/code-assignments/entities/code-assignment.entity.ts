@@ -5,6 +5,12 @@ export type CodeAssignmentDocument = HydratedDocument<CodeAssignment>;
 
 @Schema({ timestamps: true })
 export class CodeAssignment {
+  // lien quan den AI
+  @Prop({ default: 'EASY', enum: ['EASY', 'MEDIUM', 'HARD'] })
+  difficulty!: string;
+
+  @Prop({ type: [String], default: [] })
+  tags!: string[]; // ['Array', 'For Loop', 'Math']
   @Prop({ type: Types.ObjectId, ref: 'Assignment', required: true })
   assignment_id!: Types.ObjectId;
 

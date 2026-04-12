@@ -6,7 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './module/users/users.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+// import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+// import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { AssignmentsModule } from './module/assignments/assignments.module';
 import { CartDetailsModule } from './module/cart-details/cart-details.module';
 import { CartsModule } from './module/carts/carts.module';
@@ -26,6 +27,9 @@ import { SubmissionsModule } from './module/submissions/submissions.module';
 import { TestcasesModule } from './module/testcases/testcases.module';
 import { BlogsModule } from './module/blogs/blogs.module';
 import { StatisticsModule } from './module/statistics/statistics.module';
+import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -78,7 +82,8 @@ import { StatisticsModule } from './module/statistics/statistics.module';
           from: '"CodeMaster AI" <no-reply@codemaster.ai>',
         },
         template: {
-          dir: process.cwd() + '/src/mail/template/',
+          // dir: process.cwd() + 'dist/mail/template/',
+          dir: join(__dirname, 'mail/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
@@ -89,10 +94,10 @@ import { StatisticsModule } from './module/statistics/statistics.module';
     }),
 
     AuthModule,
-
     BlogsModule,
 
     StatisticsModule,
+    AiAssistantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

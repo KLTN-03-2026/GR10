@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import AnimateOnScroll from "../../../utils/animateOnScroll";
 type CTASectionProps = {
   title?: string;
   description?: string;
@@ -15,44 +17,56 @@ export default function CTASection({
   onPrimaryClick,
   onSecondaryClick,
 }: CTASectionProps) {
+  const navigate = useNavigate();
+  const handlePrimaryClick = () => {
+    if (onPrimaryClick) {
+      onPrimaryClick();
+    } else {
+      navigate("/register");
+    }
+  };
+
+
   return (
-    <section className="bg-brand-25 py-12 md:py-16">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600 px-6 py-16 text-center shadow-sm md:px-10 md:py-20">
-          {/* glow/background accents */}
-          <div className="absolute -left-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-700/20 blur-3xl" />
-          <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-white/5 blur-2xl" />
+    <AnimateOnScroll>
+      <section className="bg-brand-25 py-12 md:py-16">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600 px-6 py-16 text-center shadow-sm md:px-10 md:py-20">
+            {/* glow/background accents */}
+            <div className="absolute -left-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-700/20 blur-3xl" />
+            <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-white/5 blur-2xl" />
 
-          <div className="relative mx-auto max-w-3xl">
-            <h2 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">
-              {title}
-            </h2>
+            <div className="relative mx-auto max-w-3xl">
+              <h2 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">
+                {title}
+              </h2>
 
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-brand-50/90 md:text-[18px]">
-              {description}
-            </p>
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-brand-50/90 md:text-[18px]">
+                {description}
+              </p>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <button
-                type="button"
-                onClick={onPrimaryClick}
-                className="min-w-[190px] rounded-full bg-white px-8 py-4 text-lg font-semibold text-brand-600 shadow-lg shadow-brand-900/10 transition hover:-translate-y-0.5 hover:bg-brand-25"
-              >
-                {primaryText}
-              </button>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handlePrimaryClick}
+                  className="min-w-[190px] rounded-full bg-white px-8 py-4 text-lg font-semibold text-brand-600 shadow-lg shadow-brand-900/10 transition hover:-translate-y-0.5 hover:bg-brand-25"
+                >
+                  {primaryText}
+                </button>
 
-              <button
-                type="button"
-                onClick={onSecondaryClick}
-                className="min-w-[190px] rounded-full border border-white/20 bg-brand-700/20 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-brand-700/30"
-              >
-                {secondaryText}
-              </button>
+                <button
+                  type="button"
+                  onClick={onSecondaryClick}
+                  className="min-w-[190px] rounded-full border border-white/20 bg-brand-700/20 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-brand-700/30"
+                >
+                  {secondaryText}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </AnimateOnScroll>
   );
 }

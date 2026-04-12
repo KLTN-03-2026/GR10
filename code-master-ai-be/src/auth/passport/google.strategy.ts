@@ -17,12 +17,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
     const { name, emails, photos, id } = profile;
     
-    // Gom dữ liệu từ Google trả về thành 1 object gọn gàng
     const user = {
       googleId: id,
       email: emails[0].value,
       name: name.givenName + ' ' + name.familyName,
-      avatar: photos[0].value,
+      image: photos[0].value,
+      provider:'google'
     };
     
     done(null, user);

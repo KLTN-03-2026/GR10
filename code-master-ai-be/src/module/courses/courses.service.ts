@@ -4,14 +4,14 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { Course } from './entities/course.entity';
 import { Model } from 'mongoose';
 import { CourseDocument } from './entities/course.entity';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CourseLevel } from './enums/courseLevel.enum';
 import { CourseStatus } from './enums/courseStatus.enum';
-import { NotFoundException } from '@nestjs/common';
 import { Category } from '../categories/entities/category.entity';
 import { CategoryDocument } from '../categories/entities/category.entity';
 import { SearchCourse } from './dto/search-course.dto';
-import { filter } from 'rxjs';
+import { ApiResponse } from '@/common/dto/api-response.dto';
+import { Lesson, LessonDocument } from '../lessons/entities/lesson.entity';
 
 @Injectable()
 export class CoursesService {
@@ -21,6 +21,9 @@ export class CoursesService {
 
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+
+    @InjectModel(Lesson.name)
+    private readonly lessonModel: Model<LessonDocument>,
   ) {}
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
     const category = await this.categoryModel.findById(
@@ -36,16 +39,44 @@ export class CoursesService {
     return createCourse;
   }
 
-  async findAll(): Promise<Course[]> {
-    return this.courseModel.find().lean().exec();
+  async findAll(): Promise<ApiResponse<Course[]>> {
+    const courses = await this.courseModel
+      .find()
+      .populate('category', 'category_name')
+      .lean()
+      .exec();
+    return new ApiResponse('Danh sách khóa học', courses);
   }
 
-  async findOne(id: string): Promise<Course> {
-    const course = await this.courseModel.findById(id);
+  // async findOne(id: string): Promise<Course> {
+  //   const course = await this.courseModel.findById(id).populate("category", "category_name");
+  //   if (!course) {
+  //     throw new UnauthorizedException('Course not exist');
+  //   }
+  //   return course;
+  // }
+
+  async findOne(id: string): Promise<ApiResponse<any>> {
+    const course = await this.courseModel
+      .findById(id)
+      .populate('category', 'category_name')
+      .lean()
+      .exec();
+
     if (!course) {
-      throw new UnauthorizedException('Course not exist');
+      throw new NotFoundException('Không tìm thấy khóa học');
     }
-    return course;
+
+    const lessons = await this.lessonModel
+      .find({ course_id: id })
+      .sort({ lesson_order: 1 })
+      .lean()
+      .exec();
+
+    return new ApiResponse('Chi tiết khóa học', {
+      ...course,
+      lessons,
+    });
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
@@ -67,7 +98,6 @@ export class CoursesService {
     const result = await this.courseModel.findByIdAndDelete(id);
     if (!result) throw new NotFoundException('Course not found ');
   }
-
 
   //Tìm kiếm theo khoá học 
   async searchCourses(search: SearchCourse) {

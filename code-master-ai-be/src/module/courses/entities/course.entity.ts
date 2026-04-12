@@ -32,6 +32,12 @@ export class Course {
   //FK -> Category
   @Prop({ type: Types.ObjectId, ref: 'Category' })
   category: Types.ObjectId;
+
+  @Prop({ type: [String], default: [] })
+  learning_outcomes: string[];
+
+  @Prop({ type: [String], default: [] })
+  requirements: string[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

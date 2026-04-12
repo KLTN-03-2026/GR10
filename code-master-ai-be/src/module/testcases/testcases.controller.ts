@@ -9,18 +9,31 @@ import {
   Query,
 } from '@nestjs/common';
 import { TestcasesService } from './testcases.service';
-import { CreateTestcaseDto } from './dto/create-testcase.dto';
 import { UpdateTestcaseDto } from './dto/update-testcase.dto';
 import { ParseObjectIdPipe } from '@/common/pipes/parse-object-id.pipe';
 
 @Controller('testcases')
 export class TestcasesController {
   constructor(private readonly testcasesService: TestcasesService) {}
-
-  @Post()
-  create(@Body() createTestcaseDto: CreateTestcaseDto) {
-    return this.testcasesService.create(createTestcaseDto);
+  @Post('generate-ai/:assignmentId')
+  async generateAI(
+    @Param('assignmentId') codeAssignmentId: string,
+    @Body('solutionCode') solutionCode: string,
+    @Body('constraints') constraints: string,
+    @Body('numberOfTestCases') numberOfTestCases: number,
+  ) {
+    return this.testcasesService.generateTestCaseByAI(
+      codeAssignmentId,
+      solutionCode,
+      constraints,
+      numberOfTestCases,
+    );
   }
+
+  // @Post()
+  // create(@Body() createTestcaseDto: CreateTestcaseDto) {
+  //   return this.testcasesService.create(createTestcaseDto);
+  // }
 
   @Get()
   findAll(@Query('code_assignment_id') codeAssignmentId?: string) {
