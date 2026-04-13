@@ -12,6 +12,7 @@ import { Category } from '../categories/entities/category.entity';
 import { CategoryDocument } from '../categories/entities/category.entity';
 import { ApiResponse } from '@/common/dto/api-response.dto';
 import { Lesson, LessonDocument } from '../lessons/entities/lesson.entity';
+import { UploadService } from '@/upload/upload.service';
 
 @Injectable()
 export class CoursesService {
@@ -24,15 +25,23 @@ export class CoursesService {
 
     @InjectModel(Lesson.name)
     private readonly lessonModel: Model<LessonDocument>,
+    private readonly uploadService: UploadService,
   ) {}
-  async create(createCourseDto: CreateCourseDto): Promise<Course> {
+  async create(createCourseDto: CreateCourseDto,file?: Express.Multer.File): Promise<Course> {
     const category = await this.categoryModel.findById(
       createCourseDto.category,
     );
-    if (!category)
+    if (!category){
       throw new NotFoundException('Cant search Category in Course');
+    }
+    let thumbnailUrl = createCourseDto.thumbnail || '';
+    if (file) {
+      const uploadResult = await this.uploadService.uploadFile(file);
+      thumbnailUrl = uploadResult.url; 
+    }
     const createCourse = await this.courseModel.create({
       ...createCourseDto,
+      thumbnail: thumbnailUrl,
       level: CourseLevel.BEGINNER,
       status: CourseStatus.ACTIVE,
     });
@@ -73,7 +82,13 @@ export class CoursesService {
   });
 }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
+  async update(id: string, updateCourseDto: UpdateCourseDto,file?: Express.Multer.File,): Promise<Course> {
+    let thumbnailUrl = updateCourseDto.thumbnail;
+    if (file) {
+      const uploadResult = await this.uploadService.uploadFile(file);
+      thumbnailUrl = uploadResult.url; 
+      updateCourseDto.thumbnail = thumbnailUrl;
+    }
     const updated = await this.courseModel.findByIdAndUpdate(
       id,
       updateCourseDto,
