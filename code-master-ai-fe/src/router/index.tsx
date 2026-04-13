@@ -17,7 +17,7 @@ import AdminLayout from "../layout/adminLayout";
 import ArticleManage from "../pages/articleManage";
 import CourseManage from "../pages/courseManage";
 import ExerciseManage from "../pages/exerciseManage";
-import UserManage from "../pages/userManage";
+import UserManage from "../pages/admin/userManage";
 import CategoryManage from "../pages/categoryManage";
 import RevenueStatisticsPage from "../pages/revenueManage";
 import GoogleAuthCallback from "../pages/auth/GoogleAuthCallback";
@@ -26,6 +26,9 @@ import LessonPage from "../pages/lesson";
 import Quizz from "../pages/quizz";
 import GithubAuthCallback from "../pages/auth/GithubAuthCallback";
 import ExercisePage from "../pages/lesson/excersite";
+import RoleManage from "../pages/admin/roleManage";
+import PermissionManage from "../pages/admin/permissionManage";
+import ProfilePage from "../pages/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -134,6 +137,12 @@ export const router = createBrowserRouter([
       { path: "exercises", element: <ExerciseManage /> },
       { path: "users", element: <UserManage /> },
       { path: "categories", element: <CategoryManage /> },
+      { path: 'roles', element: <RoleManage /> },
+      {path: 'permissions',element: <PermissionManage /> },
+      {
+            path: "profile",
+            element: <ProfilePage /> // Component Profile ta vừa làm ở bước trước
+        }
     ],
   },
 ]);

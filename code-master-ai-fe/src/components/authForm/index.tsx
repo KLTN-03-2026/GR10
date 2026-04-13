@@ -186,7 +186,14 @@ export default function AuthForm({ type = "login" }: AuthFormProps) {
             setUserInfo(data.user);
             console.log("data:", data.user);
             showMessage("success", "Dang nhap thanh cong");
-            navigate("/");
+            const perms = data.user.permissions || [];
+            console.log("permissions: ", perms);
+            if (perms.length > 0) {
+              navigate("/admin");
+            } else {
+              navigate("/");
+            }
+            // navigate("/");
           }
           // if (data.access_token) {
           //   localStorage.setItem("token", data.access_token);
