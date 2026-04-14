@@ -26,6 +26,10 @@ import LessonPage from "../pages/lesson";
 import Quizz from "../pages/quizz";
 import GithubAuthCallback from "../pages/auth/GithubAuthCallback";
 import ExercisePage from "../pages/lesson/excersite";
+import UserProfile from "../pages/profile";
+import ChangePassword from "../pages/profile/ChangePassword";
+import MyCourses from "../pages/profile/MyCourses";
+import PersonalInfo from "../pages/profile/PersonalInfo";
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +75,23 @@ export const router = createBrowserRouter([
       {
         path: "/order-detail/:orderId",
         element: <OrderDetailPage />,
+      }, {
+        path: "/profile",
+        element: <UserProfile />, // chứa ProfileLayout + Outlet
+        children: [
+          {
+            index: true,
+            element: <PersonalInfo />, // /profile
+          },
+          {
+            path: "password",
+            element: <ChangePassword />, // /profile/password
+          },
+          {
+            path: "courses",
+            element: <MyCourses />, // /profile/courses
+          },
+        ],
       },
     ],
   },
@@ -87,9 +108,9 @@ export const router = createBrowserRouter([
         element: <Quizz />,
       },
       {
-      path: "exercise",
-      element: <ExercisePage />,
-    }
+        path: "exercise",
+        element: <ExercisePage />,
+      }
     ],
   },
   {

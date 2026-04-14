@@ -93,7 +93,7 @@ const Navbar = () => {
         {
             key: '1',
             label: (
-                <div className="font-medium text-brand-600 flex gap-3">{<UserOutlined />}Thông tin cá nhân</div>
+                <div onClick={()=>navigate("/profile")} className="font-medium text-brand-600 flex gap-3">{<UserOutlined />}Thông tin cá nhân</div>
             ),
         },
         {
