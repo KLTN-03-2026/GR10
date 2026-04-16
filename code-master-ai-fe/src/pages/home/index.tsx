@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import HomeBaner from "../../components/home/home-banner";
 import FeaturedCourses from "../../components/home/featured courses";
 import HomeCourses from "../../components/home/home-courses";
@@ -7,7 +7,13 @@ import HomeNews from "../../components/home/home-news";
 import CTASection from "../../components/home/home-box";
 import Footer from "../../components/footer";
 import { useUserInfo } from "../../store/user";
+
 const Home = () => {
+  // Scroll to top khi component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const { userInfo } = useUserInfo();
 
   return (
