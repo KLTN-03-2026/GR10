@@ -6,7 +6,7 @@ export type TestCaseDocument = HydratedDocument<TestCase>;
 @Schema({ timestamps: true, collection: 'testcases' })
 export class TestCase {
   
-  @Prop({ type: Types.ObjectId, ref: 'Assignment', required: true }) 
+  @Prop({ type: Types.ObjectId, ref: 'CodeAssignment', required: true }) 
   assignment_id!: Types.ObjectId;
 
   @Prop({ type: String, required: true }) 

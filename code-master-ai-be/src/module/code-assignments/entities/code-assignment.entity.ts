@@ -6,6 +6,7 @@ export type CodeAssignmentDocument = HydratedDocument<CodeAssignment>;
 @Schema({ timestamps: true })
 export class CodeAssignment {
   @Prop({ type: Types.ObjectId, ref: 'Assignment', required: true }) assignment_id!: Types.ObjectId ;
+  @Prop({}) title!: string;
   @Prop({ required: true }) problem_description!: string;
   @Prop() input_format!: string;
   @Prop() output_format!: string;

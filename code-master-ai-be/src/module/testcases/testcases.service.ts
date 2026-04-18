@@ -18,7 +18,7 @@ export class TestcasesService {
     @InjectModel(CodeAssignment.name) private codeAssignmentModel: Model<CodeAssignmentDocument>
   ){this.genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')};
   async generateTestCaseByAI(assignmentId:string , solutionCode:string,constraints:string,numberOfTestCases:number=5){
-    const assignment = await this.assignmentModel.findById(assignmentId);
+    const assignment = await this.codeAssignmentModel.findById(assignmentId);
     if(!assignment){
       throw new BadRequestException('khong tim thay bai tap');
     }
@@ -28,7 +28,7 @@ export class TestcasesService {
       
       THÔNG TIN BÀI TOÁN:
       - Tên bài: ${assignment.title}
-      - Mô tả: ${assignment.description}
+      - Mô tả: ${assignment.problem_description}
       - Giới hạn: ${constraints}
       - Code giải chuẩn: \n${solutionCode}
 
@@ -47,8 +47,8 @@ export class TestcasesService {
       ]
     `;
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(prompt); // Đã sửa lại lỗi await
+      const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+      const result = await model.generateContent(prompt); 
       let textResponse = result.response.text();
       
       textResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
