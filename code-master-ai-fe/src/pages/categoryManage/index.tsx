@@ -70,7 +70,7 @@ const CategoryManage: React.FC = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+  }, []);
 
   const handleAddCategory = () => {
     setModalType("create");
