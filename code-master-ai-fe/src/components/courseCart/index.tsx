@@ -79,13 +79,13 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-brand-900/5 transition-all group-hover:bg-transparent" />
-        <span
+        {/* <span
           className={`absolute left-4 top-4 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] shadow-lg 
              ${getCategoryBadgeClass(course.category.category_name)}
              `}
         >
           {course.category.category_name}
-        </span>
+        </span> */}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
