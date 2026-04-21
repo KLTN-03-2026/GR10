@@ -57,7 +57,7 @@ export class AuthService {
 
     res.cookie('refresh_token', refreshToken, {
       ...cookieBase,
-      path: '/', // Dùng '/' để dễ quản lý và xóa
+      path: '/',
       maxAge: refreshCookieAge, 
     });
 
@@ -184,6 +184,9 @@ export class AuthService {
 
   retryPassword = async (email: string) => {
     return await this.usersService.retryPassword(email);
+  };
+  verifyForgotOTP = async (data: { email: string; code: string }) => {
+    return await this.usersService.verifyForgotOTP(data);
   };
 
   changePassword = async (data: changePasswordAuthDto) => {
