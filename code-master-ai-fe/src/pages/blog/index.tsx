@@ -5,7 +5,7 @@ import AnimateOnScroll from "../../utils/animateOnScroll";
 import axios from "axios";
 
 // TYPE
-interface Blog {
+interface IBlog {
   _id: string;
   title: string;
   slug: string;
@@ -22,10 +22,16 @@ interface Blog {
 }
 
 const Blog = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [featured, setFeatured] = useState<Blog | null>(null);
+  const [blogs, setBlogs] = useState<IBlog[]>([]);
+  const [featured, setFeatured] = useState<IBlog | null>(null);
 
-  const tags = ["#Frontend", "#Python", "#Cloud", "#DevOps", "#MachineLearning"];
+  const tags = [
+    "#Frontend",
+    "#Python",
+    "#Cloud",
+    "#DevOps",
+    "#MachineLearning",
+  ];
 
   // LOAD MORE
   const [showAll, setShowAll] = useState(false);
@@ -39,9 +45,9 @@ const Blog = () => {
   const fetchBlogs = async () => {
     try {
       const res = await axios.get(
-        "https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs"
+        "https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs",
       );
-      const data: Blog[] = res.data.data || [];
+      const data: IBlog[] = res.data.data || [];
 
       setBlogs(data);
       setFeatured(data[0] || null);
@@ -73,7 +79,6 @@ const Blog = () => {
 
         {/* FEATURED + SIDEBAR */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 grid lg:grid-cols-3 gap-6 md:gap-8">
-          
           {/* FEATURED */}
           <AnimateOnScroll className="lg:col-span-2 space-y-4 md:space-y-6">
             {featured && (
@@ -95,9 +100,7 @@ const Blog = () => {
                     {featured.title}
                   </h2>
 
-                  <p className="text-gray-600">
-                    {featured.short_description}
-                  </p>
+                  <p className="text-gray-600">{featured.short_description}</p>
 
                   <Link
                     to={`/blog/${featured._id}`}
@@ -118,7 +121,8 @@ const Blog = () => {
               </h3>
 
               <p className="text-sm mt-2 text-white/90">
-                Nhận thông báo về các khóa học và xu hướng công nghệ hàng tuần qua email.
+                Nhận thông báo về các khóa học và xu hướng công nghệ hàng tuần
+                qua email.
               </p>
 
               <input
@@ -133,9 +137,7 @@ const Blog = () => {
             </div>
 
             <div className="bg-[#f3f1ea] p-6 rounded-2xl">
-              <h3 className="font-bold text-gray-900 mb-4">
-                Chủ đề phổ biến
-              </h3>
+              <h3 className="font-bold text-gray-900 mb-4">Chủ đề phổ biến</h3>
 
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag, i) => (
@@ -173,9 +175,7 @@ const Blog = () => {
                       {new Date(blog.createdAt).toLocaleDateString()}
                     </p>
 
-                    <h3 className="font-bold text-lg mt-1">
-                      {blog.title}
-                    </h3>
+                    <h3 className="font-bold text-lg mt-1">{blog.title}</h3>
 
                     <p className="text-sm text-gray-600 line-clamp-2 mt-1">
                       {blog.short_description}

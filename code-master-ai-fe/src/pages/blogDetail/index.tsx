@@ -21,12 +21,13 @@ const BlogDetail = () => {
   useEffect(() => {
     fetchBlogDetail();
     fetchRelatedBlogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchBlogDetail = async () => {
     try {
       const res = await axios.get(
-        `https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs/${id}`
+        `https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs/${id}`,
       );
       setBlog(res.data.data);
     } catch (error) {
@@ -39,14 +40,12 @@ const BlogDetail = () => {
   const fetchRelatedBlogs = async () => {
     try {
       const res = await axios.get(
-        "https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs"
+        "https://codeaimaster-kltn-2026-10.onrender.com/api/v1/blogs",
       );
 
       const data: Blog[] = res.data.data || [];
 
-      const filtered = data
-        .filter((item) => item._id !== id)
-        .slice(0, 3);
+      const filtered = data.filter((item) => item._id !== id).slice(0, 3);
 
       setRelatedBlogs(filtered);
     } catch (error) {
@@ -65,7 +64,6 @@ const BlogDetail = () => {
   return (
     <div className="bg-[#f7f5f0] min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-3 gap-10">
-        
         {/* LEFT CONTENT */}
         <div className="lg:col-span-2">
           <p className="text-sm text-gray-500 uppercase mb-2">
@@ -79,9 +77,7 @@ const BlogDetail = () => {
           <div className="flex items-center gap-3 text-sm text-gray-500 mt-4">
             <span>{blog.author}</span>
             <span>•</span>
-            <span>
-              {new Date(blog.createdAt).toLocaleDateString()}
-            </span>
+            <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
           </div>
 
           {/* COVER */}
@@ -90,8 +86,7 @@ const BlogDetail = () => {
             className="w-full h-80 object-cover rounded-xl mt-6"
             alt={blog.title}
             onError={(e) =>
-              (e.currentTarget.src =
-                "https://via.placeholder.com/800x400")
+              (e.currentTarget.src = "https://via.placeholder.com/800x400")
             }
           />
 
@@ -116,7 +111,6 @@ const BlogDetail = () => {
 
         {/* RIGHT SIDEBAR */}
         <div className="space-y-6">
-
           <div className="bg-[#f3f1ea] p-6 rounded-2xl">
             <h3 className="font-bold text-gray-900 mb-4 text-lg">
               Chủ đề phổ biến
@@ -153,7 +147,7 @@ const BlogDetail = () => {
                   >
                     {tag}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>
@@ -167,10 +161,7 @@ const BlogDetail = () => {
             Bài viết liên quan
           </h2>
 
-          <Link
-            to="/blog"
-            className="text-brand-700 text-sm font-semibold"
-          >
+          <Link to="/blog" className="text-brand-700 text-sm font-semibold">
             Xem tất cả →
           </Link>
         </div>
