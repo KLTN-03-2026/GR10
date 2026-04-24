@@ -68,6 +68,7 @@ const UserManage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, activeSearch]); // xu ly tim kiem nhan
 
   useEffect(() => {
@@ -86,9 +87,9 @@ const UserManage: React.FC = () => {
     setActiveSearch(searchInput.trim());
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSearch();
-  }; //  THÊM / SỬA / XÓA
+  //   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //     if (e.key === "Enter") handleSearch();
+  //   }; //  THÊM / SỬA / XÓA
 
   const handleOpenCreate = () => {
     setFormData({
