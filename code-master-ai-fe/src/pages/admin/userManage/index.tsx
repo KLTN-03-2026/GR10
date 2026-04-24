@@ -82,10 +82,10 @@ const UserManage: React.FC = () => {
     return () => clearTimeout(delaySearch);
   }, [searchInput]); // Xử lý khi bấm nút Tìm kiếm hoặc Enter
 
-//   const handleSearch = () => {
-//     setCurrentPage(1); // Reset về trang 1 khi tìm kiếm mới
-//     setActiveSearch(searchInput.trim());
-//   };
+  //   const handleSearch = () => {
+  //     setCurrentPage(1); // Reset về trang 1 khi tìm kiếm mới
+  //     setActiveSearch(searchInput.trim());
+  //   };
 
   //   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   //     if (e.key === "Enter") handleSearch();
@@ -183,23 +183,23 @@ const UserManage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-7xl">
-                  {/* --- HEADER & TÌM KIẾM --- */}           {" "}
+                  {/* --- HEADER & TÌM KIẾM --- */}         
       <div className="mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                       {" "}
+                     
         <div>
-                             {" "}
+                           
           <h2 className="text-2xl font-bold text-gray-900">
             Quản Lý Tài Khoản
           </h2>
-                             {" "}
+                           
           <p className="text-sm text-gray-500">
             Quản lý nhân sự, giảng viên và quản trị viên trên hệ thống.
           </p>
-                         {" "}
+                       
         </div>
-                                       {" "}
+                                     
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                              {/* Thanh Tìm Kiếm */}                   {" "}
+                              {/* Thanh Tìm Kiếm */}                 
           {/* <div className="relative w-full sm:w-64">
                         <input 
                             type="text" 
@@ -216,9 +216,9 @@ const UserManage: React.FC = () => {
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </button>
                     </div> */}
-                              {/* tim kiem nhanh */}                   {" "}
+                              {/* tim kiem nhanh */}                 
           <div className="relative w-full sm:w-64">
-                                   {" "}
+                                 
             <input
               type="text"
               placeholder="Tìm tên, email..."
@@ -226,9 +226,9 @@ const UserManage: React.FC = () => {
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full h-[42px] pl-4 pr-10 rounded-xl border border-gray-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm"
             />
-                                                         {" "}
+                                                       
             <div className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">
-                                         {" "}
+                                       
               <svg
                 className="w-5 h-5"
                 fill="none"
@@ -242,65 +242,64 @@ const UserManage: React.FC = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-                                     {" "}
+                                   
             </div>
-                               {" "}
+                             
           </div>
-                             {" "}
+                           
           <PermissionControl permission="users_create">
-                                   {" "}
+                                 
             <button
               onClick={handleOpenCreate}
               className="w-full sm:w-auto px-6 h-[42px] rounded-xl font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition active:scale-95 whitespace-nowrap"
             >
-                                          + Thêm Mới                      
-               {" "}
+               + Thêm Mới                      
             </button>
-                               {" "}
+                             
           </PermissionControl>
-                         {" "}
+                       
         </div>
-                   {" "}
+                 
       </div>
-                  {/* Thông báo */}           {" "}
+                  {/* Thông báo */}         
       {notification && (
         <div
           className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium animate-fade-in-up ${notification.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
         >
-                              {notification.msg}               {" "}
+            {notification.msg}             
         </div>
       )}
-                  {/* --- TABLE DANH SÁCH --- */}           {" "}
+                  {/* --- TABLE DANH SÁCH --- */}         
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-                       {" "}
+                     
         <div className="overflow-x-auto">
-                             {" "}
+                           
           <table className="min-w-full text-left text-sm whitespace-nowrap">
-                                   {" "}
+                                 
             <thead className="bg-gray-50 border-b border-gray-100">
-                                         {" "}
+                                       
               <tr>
-                                               {" "}
+                                             
                 <th className="px-6 py-4 font-semibold text-gray-900">
                   Họ và Tên
                 </th>
-                                               {" "}
+                                             
                 <th className="px-6 py-4 font-semibold text-gray-900">Email</th>
-                                               {" "}
+                                             
                 <th className="px-6 py-4 font-semibold text-gray-900">
                   Vai trò (Role)
                 </th>
-                                               {" "}
+                                             
                 <th className="px-6 py-4 font-semibold text-gray-900 text-center">
                   Thao tác
                 </th>
-                                           {" "}
+                                         
               </tr>
-                                     {" "}
+                                   
             </thead>
-                                   {" "}
+                                 
             <tbody className="divide-y divide-gray-100">
-                                         {" "}
+                                       
               {loading ? (
                 <tr>
                   <td colSpan={4} className="text-center py-10 text-gray-500">
@@ -319,36 +318,36 @@ const UserManage: React.FC = () => {
                   const roleName = user.role_id?.role_name || "Chưa cấp quyền";
                   return (
                     <tr key={user._id} className="hover:bg-gray-50 transition">
-                                                                 {" "}
+                                                               
                       <td className="px-6 py-4 font-semibold text-gray-900">
                         {user.name}
                       </td>
-                                                                 {" "}
+                                                               
                       <td className="px-6 py-4 text-gray-600">{user.email}</td> 
-                                                               {" "}
+                                                             
                       <td className="px-6 py-4">
-                                                                       {" "}
+                                                                     
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold border ${getRoleTagColor(roleName)}`}
                         >
-                                                                             {" "}
+                                                                           
                           {roleName}                                           
-                             {" "}
+                           
                         </span>
-                                                                   {" "}
+                                                                 
                       </td>
-                                                                 {" "}
+                                                               
                       <td className="px-6 py-4 flex justify-center gap-2">
-                                                                       {" "}
+                                                                     
                         <PermissionControl permission="users_edit">
-                                                                             {" "}
+                                                                           
                           <button
                             onClick={() => handleOpenEdit(user)}
                             className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition"
                             title="Sửa thông tin"
                           >
                                                                                
-                               {" "}
+                             
                             <svg
                               className="w-4 h-4"
                               fill="none"
@@ -363,20 +362,18 @@ const UserManage: React.FC = () => {
                               />
                             </svg>
                                                                              
-                             {" "}
                           </button>
-                                                                         {" "}
+                                                                       
                         </PermissionControl>
-                                                                       {" "}
+                                                                     
                         <PermissionControl permission="users_delete">
-                                                                             {" "}
+                                                                           
                           <button
                             onClick={() => handleDelete(user._id, user.name)}
                             className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
                             title="Xóa tài khoản"
                           >
                                                                                
-                               {" "}
                             <svg
                               className="w-4 h-4"
                               fill="none"
@@ -391,51 +388,49 @@ const UserManage: React.FC = () => {
                               />
                             </svg>
                                                                              
-                             {" "}
                           </button>
-                                                                         {" "}
+                                                                       
                         </PermissionControl>
-                                                                   {" "}
+                                                                 
                       </td>
-                                                             {" "}
+                                                           
                     </tr>
                   );
                 })
               )}
-                                     {" "}
+                                   
             </tbody>
-                               {" "}
+                             
           </table>
-                         {" "}
+                       
         </div>
-                        {/* --- CHÂN TRANG: PHÂN TRANG --- */}               {" "}
+                        {/* --- CHÂN TRANG: PHÂN TRANG --- */}             
         {!loading && totalItems > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 bg-gray-50/50">
-                                   {" "}
+                                 
             <span className="text-sm text-gray-500 mb-3 sm:mb-0">
                                           Hiển thị{" "}
-              <strong>{(currentPage - 1) * pageSize + 1}</strong> đến{" "}
-              <strong>{Math.min(currentPage * pageSize, totalItems)}</strong>{" "}
+              <strong>{(currentPage - 1) * pageSize + 1}</strong> đến
+              <strong>{Math.min(currentPage * pageSize, totalItems)}</strong>
               trong tổng số <strong>{totalItems}</strong> tài khoản            
-                         {" "}
+                       
             </span>
-                                   {" "}
+                                 
             <div className="flex items-center gap-2">
-                                         {" "}
+                                       
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                                                 Trước                          
-                 {" "}
               </button>
-                                         {" "}
+                                       
               <span className="px-4 text-sm font-semibold text-brand-700">
-                                                Trang {currentPage} /{" "}
-                {totalPages}                           {" "}
+                                                Trang {currentPage} /
+                {totalPages}                         
               </span>
-                                         {" "}
+                                       
               <button
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
@@ -444,39 +439,38 @@ const UserManage: React.FC = () => {
                 className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                                                 Sau                          
-                 {" "}
               </button>
-                                     {" "}
+                                   
             </div>
-                               {" "}
+                             
           </div>
         )}
-                   {" "}
+                 
       </div>
-                  {/* --- MODAL THÊM / SỬA --- */}           {" "}
+                  {/* --- MODAL THÊM / SỬA --- */}         
       {modalConfig.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 px-4 backdrop-blur-sm">
-                             {" "}
+                           
           <div className="w-full max-w-md animate-fade-in-up rounded-2xl bg-white p-6 shadow-2xl">
-                                   {" "}
+                                 
             <h3 className="mb-1 text-xl font-bold text-gray-900">
               {modalConfig.type === "create"
                 ? "Tạo Tài Khoản Mới"
                 : "Sửa Thông Tin"}
             </h3>
-                                   {" "}
+                                 
             <p className="mb-6 text-sm text-gray-500">
               Điền thông tin định danh và phân quyền cho tài khoản.
             </p>
-                                   {" "}
+                                 
             <div className="space-y-4">
-                                         {" "}
+                                       
               <div>
-                                               {" "}
+                                             
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Họ và Tên <span className="text-red-500">*</span>
                 </label>
-                                               {" "}
+                                             
                 <input
                   type="text"
                   value={formData.name}
@@ -486,15 +480,15 @@ const UserManage: React.FC = () => {
                   className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                   placeholder="VD: Nguyễn Văn A"
                 />
-                                           {" "}
+                                         
               </div>
-                                         {" "}
+                                       
               <div>
-                                               {" "}
+                                             
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Email đăng nhập <span className="text-red-500">*</span>
                 </label>
-                                               {" "}
+                                             
                 <input
                   type="email"
                   value={formData.email}
@@ -505,11 +499,11 @@ const UserManage: React.FC = () => {
                   className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:bg-gray-100 disabled:text-gray-500"
                   placeholder="admin@domain.com"
                 />
-                                           {" "}
+                                         
               </div>
-                                         {" "}
+                                       
               <div>
-                                               {" "}
+                                             
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Mật khẩu{" "}
                   {modalConfig.type === "create" ? (
@@ -520,7 +514,7 @@ const UserManage: React.FC = () => {
                     </span>
                   )}
                 </label>
-                                               {" "}
+                                             
                 <input
                   type="password"
                   value={formData.password}
@@ -530,15 +524,15 @@ const UserManage: React.FC = () => {
                   className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                   placeholder="********"
                 />
-                                           {" "}
+                                         
               </div>
-                                         {" "}
+                                       
               <div>
-                                               {" "}
+                                             
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Phân Quyền (Role) <span className="text-red-500">*</span>
                 </label>
-                                               {" "}
+                                             
                 <select
                   value={formData.role_id}
                   onChange={(e) =>
@@ -546,25 +540,25 @@ const UserManage: React.FC = () => {
                   }
                   className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white"
                 >
-                                                     {" "}
+                                                   
                   <option value="" disabled>
                     -- Chọn nhóm quyền --
                   </option>
-                                                     {" "}
+                                                   
                   {roles.map((r) => (
                     <option key={r._id} value={r._id}>
                       {r.role_name}
                     </option>
                   ))}
-                                                 {" "}
+                                               
                 </select>
-                                           {" "}
+                                         
               </div>
-                                     {" "}
+                                   
             </div>
-                                   {" "}
+                                 
             <div className="mt-8 flex justify-end gap-3">
-                                         {" "}
+                                       
               <button
                 onClick={() =>
                   setModalConfig({ ...modalConfig, isOpen: false })
@@ -572,26 +566,25 @@ const UserManage: React.FC = () => {
                 className="rounded-xl px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
               >
                                                 Hủy bỏ                          
-                 {" "}
               </button>
-                                         {" "}
+                                       
               <button
                 onClick={handleSubmit}
                 disabled={isProcessing}
                 className="flex min-w-[100px] items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 disabled:bg-brand-400"
               >
-                                               {" "}
+                                             
                 {isProcessing ? "Đang xử lý..." : "Xác nhận"}                   
-                       {" "}
+                     
               </button>
-                                     {" "}
+                                   
             </div>
-                               {" "}
+                             
           </div>
-                         {" "}
+                       
         </div>
       )}
-             {" "}
+           
     </div>
   );
 };
