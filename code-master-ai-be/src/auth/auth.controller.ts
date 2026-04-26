@@ -72,6 +72,12 @@ export class AuthController {
     return this.authService.retryPassword(email);
   }
 
+  @Post('verify-forgot-otp')
+   @Public()
+  verifyForgotOTP(@Body() data: { email: string; code: string }) {
+    return this.authService.verifyForgotOTP(data);
+  }
+
   @Post('change-password')
   @Public()
   changePassword(@Body() data: changePasswordAuthDto) {
@@ -102,5 +108,10 @@ export class AuthController {
   async githubAuthRedirect(@Req() req, @Res() res) {
     // const user = await this.userService.createGithubUser(req.user);
     return this.authService.validateOAuthLogin(req.user, res);
+  }
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Request() req: Request & { user: any }) {
+    return this.authService.getMe(req.user._id);
   }
 }

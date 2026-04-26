@@ -3,60 +3,60 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { createCartItem, GetCartLength } from "../../api/cart";
 import { useUserCart } from "../../store/cart";
-const getCategoryBadgeClass = (categoryName: string) => {
-  switch (categoryName) {
-    case "Frontend":
-      return "bg-brand-200 text-brand-900";
-    case "Backend":
-      return "bg-brand-700 text-white";
-    case "AI & Data":
-      return "bg-brand-400 text-white";
-    case "Mobile":
-      return "bg-brand-300 text-brand-900";
-    case "Cybersecurity":
-      return "bg-brand-600 text-white";
-    default:
-      return "bg-brand-400 text-white";
-  }
-};
+// const getCategoryBadgeClass = (categoryName: string) => {
+//   switch (categoryName) {
+//     case "Frontend":
+//       return "bg-brand-200 text-brand-900";
+//     case "Backend":
+//       return "bg-brand-700 text-white";
+//     case "AI & Data":
+//       return "bg-brand-400 text-white";
+//     case "Mobile":
+//       return "bg-brand-300 text-brand-900";
+//     case "Cybersecurity":
+//       return "bg-brand-600 text-white";
+//     default:
+//       return "bg-brand-400 text-white";
+//   }
+// };
 
-const getLevelLabel = (level: string) => {
-  switch (level) {
-    case "beginner":
-      return "Cơ bản";
-    case "intermediate":
-      return "Trung bình";
-    case "advanced":
-      return "Nâng cao";
-    default:
-      return level;
-  }
-};
+// const getLevelLabel = (level: string) => {
+//   switch (level) {
+//     case "beginner":
+//       return "Cơ bản";
+//     case "intermediate":
+//       return "Trung bình";
+//     case "advanced":
+//       return "Nâng cao";
+//     default:
+//       return level;
+//   }
+// };
 
-const renderStars = (rating: number) => {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 !== 0;
-  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+// const renderStars = (rating: number) => {
+//   const fullStars = Math.floor(rating);
+//   const hasHalfStar = rating % 1 !== 0;
+//   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-  return (
-    <div className="flex items-center gap-1">
-      <div className="flex text-amber-400">
-        {Array.from({ length: fullStars }).map((_, index) => (
-          <span key={`full-${index}`}>★</span>
-        ))}
-        {hasHalfStar && <span>☆</span>}
-        {Array.from({ length: emptyStars }).map((_, index) => (
-          <span key={`empty-${index}`} className="opacity-40">
-            ★
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="flex items-center gap-1">
+//       <div className="flex text-amber-400">
+//         {Array.from({ length: fullStars }).map((_, index) => (
+//           <span key={`full-${index}`}>★</span>
+//         ))}
+//         {hasHalfStar && <span>☆</span>}
+//         {Array.from({ length: emptyStars }).map((_, index) => (
+//           <span key={`empty-${index}`} className="opacity-40">
+//             ★
+//           </span>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 export const CourseCard = ({ course }: { course: ICourse }) => {
   const navigate = useNavigate();
-  const {setQuantityCart} = useUserCart();
+  const { setQuantityCart } = useUserCart();
   const onCart = async () => {
     try {
       await createCartItem(course._id);
@@ -66,30 +66,33 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
     } catch (error) {
       console.log("Lỗi khi thêm vào giỏ hàng. Vui lòng thử lại.");
     }
-  }
+  };
   return (
-    <article
-
-      className="group  flex h-full flex-col overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-    >
-      <div onClick={() => navigate(`/course/${course._id}`)} className="relative aspect-[16/10] overflow-hidden cursor-pointer">
+    <article className="group  flex h-full flex-col overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+      <div
+        onClick={() => navigate(`/course/${course._id}`)}
+        className="relative aspect-[16/10] overflow-hidden cursor-pointer"
+      >
         <img
           src={course.thumbnail}
           alt={course.title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-brand-900/5 transition-all group-hover:bg-transparent" />
-        <span
+        {/* <span
           className={`absolute left-4 top-4 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] shadow-lg 
              ${getCategoryBadgeClass(course.category.category_name)}
              `}
         >
           {course.category.category_name}
-        </span>
+        </span> */}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <div onClick={() => navigate(`/course/${course._id}`)} className="cursor-pointer">
+        <div
+          onClick={() => navigate(`/course/${course._id}`)}
+          className="cursor-pointer"
+        >
           <h3 className="mb-3 line-clamp-2 text-lg font-bold leading-snug text-brand-700">
             {course.title}
           </h3>
@@ -118,8 +121,9 @@ export const CourseCard = ({ course }: { course: ICourse }) => {
               </span>
             )} */}
             <span
-              className={`text-lg font-bold ${course.price === 0 ? "text-brand-600" : "text-brand-600"
-                }`}
+              className={`text-lg font-bold ${
+                course.price === 0 ? "text-brand-600" : "text-brand-600"
+              }`}
             >
               {course.price} Đ
             </span>

@@ -17,7 +17,7 @@ import AdminLayout from "../layout/adminLayout";
 import ArticleManage from "../pages/articleManage";
 import CourseManage from "../pages/courseManage";
 import ExerciseManage from "../pages/exerciseManage";
-import UserManage from "../pages/userManage";
+import UserManage from "../pages/admin/userManage";
 import CategoryManage from "../pages/categoryManage";
 import RevenueStatisticsPage from "../pages/revenueManage";
 import GoogleAuthCallback from "../pages/auth/GoogleAuthCallback";
@@ -26,10 +26,15 @@ import LessonPage from "../pages/lesson";
 import Quizz from "../pages/quizz";
 import GithubAuthCallback from "../pages/auth/GithubAuthCallback";
 import ExercisePage from "../pages/lesson/excersite";
+import RoleManage from "../pages/admin/roleManage";
+import PermissionManage from "../pages/admin/permissionManage";
+import ProfilePage from "../pages/ProfilePage";
 import UserProfile from "../pages/profile";
 import ChangePassword from "../pages/profile/ChangePassword";
 import MyCourses from "../pages/profile/MyCourses";
 import PersonalInfo from "../pages/profile/PersonalInfo";
+import BlogDetail from "../pages/blogDetail";
+import AdminLeads from "../pages/admin/AdminLeads";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +52,10 @@ export const router = createBrowserRouter([
       {
         path: "/blog",
         element: <Blog />,
+      },
+      {
+        path: "/blog/:id",
+        element: <BlogDetail />,
       },
       {
         path: "/course",
@@ -75,7 +84,8 @@ export const router = createBrowserRouter([
       {
         path: "/order-detail/:orderId",
         element: <OrderDetailPage />,
-      }, {
+      },
+      {
         path: "/profile",
         element: <UserProfile />, // chứa ProfileLayout + Outlet
         children: [
@@ -110,7 +120,7 @@ export const router = createBrowserRouter([
       {
         path: "exercise",
         element: <ExercisePage />,
-      }
+      },
     ],
   },
   {
@@ -155,6 +165,13 @@ export const router = createBrowserRouter([
       { path: "exercises", element: <ExerciseManage /> },
       { path: "users", element: <UserManage /> },
       { path: "categories", element: <CategoryManage /> },
+      { path: "roles", element: <RoleManage /> },
+      { path: "permissions", element: <PermissionManage /> },
+      {path: "leads", element: <AdminLeads />},
+      {
+        path: "profile",
+        element: <ProfilePage />, // Component Profile ta vừa làm ở bước trước
+      },
     ],
   },
 ]);

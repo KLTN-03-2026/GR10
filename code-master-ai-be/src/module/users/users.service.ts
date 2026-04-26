@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { User } from './entities/user.entity';
 import { generateVerificationCode, hashPasswordHelper } from '@/helpers/util';
 import { CodeAuthDto, CreateAuthDto, changePasswordAuthDto } from '@/auth/dto/create-auth.dto';
@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto,file?: Express.Multer.File) {
-    const { name, email, password, phone, address, image } = createUserDto;
+    const { name, email, password, phone, address, image ,role_id } = createUserDto;
     
     // check Email
     const isExist = await this.isEmailExist(email);
@@ -45,52 +45,108 @@ export class UsersService {
     // hash password
     const hashPassword = await hashPasswordHelper(password);
     const user = await this.userModel.create({
-      name, email, password: hashPassword, phone, address, image:imageUrl
+      name, email, password: hashPassword, phone, address, image:imageUrl,
+      role_id: role_id ? new mongoose.Types.ObjectId(role_id) : undefined,
+      isActive: true
     });
     console.log("image:",user.image)
     return { _id: user._id ,image:user.image};
   }
 
-  async findAll(query: any, current: number, pageSize: number) {
-    // const { filter, sort } = aqp(query);
-    const { default: aqp } = await import('api-query-params');
-    const { filter, sort } = aqp(query);
-    if (filter.current) delete filter.current;
-    if (filter.pageSize) delete filter.pageSize;
+  // async findAll(query: any, current: number, pageSize: number) {
+  //   // const { filter, sort } = aqp(query);
+  //   const { default: aqp } = await import('api-query-params');
+  //   const options = { ...query };
+  //   delete options.current;
+  //   delete options.pageSize;
+
+  //   const { filter, sort } = aqp(options);
     
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
+  //   if (!current) current = 1;
+  //   if (!pageSize) pageSize = 10;
     
-    // Tối ưu hiệu suất bằng countDocuments
-    const totalItems = await this.userModel.countDocuments(filter);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (+current - 1) * (+pageSize);
+  //   // Tối ưu hiệu suất bằng countDocuments
+  //   const totalItems = await this.userModel.countDocuments(filter);
+  //   const totalPages = Math.ceil(totalItems / pageSize);
+  //   const skip = (+current - 1) * (+pageSize);
     
-    const results = await this.userModel
-      .find(filter)
-      .limit(pageSize)
-      .skip(skip)
-      .select("-password")
-      .sort(sort as any);
+  //   const results = await this.userModel
+  //     .find(filter)
+  //     .limit(pageSize)
+  //     .skip(skip)
+  //     .populate('role_id')
+  //     .select("-password")
+  //     .sort(sort as any);
       
-    return { results, totalPages };
-  }
+  //   return { results, totalPages };
+  // }
+  async findAll(query: any, current: number, pageSize: number) {
+
+    // 1. Tạm thời bỏ qua aqp để test
+    const limit = pageSize? Number(pageSize):10 ;
+    const offset = ((current ?Number(current):1) - 1) * limit;
+
+    
+    // Nếu không có trường deleted, hãy để là {}
+    const filter:any = {}; 
+    if(query.search){
+      filter.$or = [
+        {name: { $regex: query.search, $options: 'i' }},
+        {email: { $regex: query.search, $options: 'i' }}
+      ]
+    }
+
+    const [results, totalItems] = await Promise.all([
+      this.userModel
+        .find(filter)
+        .limit(limit)
+        .skip(offset)
+        .populate('role_id','role_name')
+        .select("-password ")
+        .exec(),
+      this.userModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return { 
+      meta: {
+        current: current || 1,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems
+      },
+      results 
+    };
+}
 
   async findOne(id: string) {
     if (!mongoose.isValidObjectId(id)) {
       throw new BadRequestException("ID không đúng định dạng MongoDB");
     }
-    return await this.userModel.findById(id).select("-password");
+    return await this.userModel.findById(id).populate('role_id').select("-password");
   }
 
   async findByEmail(email: string) {
     return this.userModel.findOne({ email });
   }
 
-  async update(updateUserDto: UpdateUserDto) {
+  async update(updateUserDto: UpdateUserDto, file: Express.Multer.File) {
+    const { _id, name, email, phone, address, image, role_id } = updateUserDto;
+    
+    let imageUrl = image;
+    if(file){
+      const uploadResult = await this.uploadService.uploadFile(file);
+      imageUrl = uploadResult.secure_url;
+    }
+    const finalUpdateData = {
+      ...updateUserDto,
+      image: imageUrl, 
+    };
+
     return await this.userModel.updateOne(
       { _id: updateUserDto._id },
-      { ...updateUserDto }
+      finalUpdateData
     );
   }
 
@@ -101,6 +157,41 @@ export class UsersService {
       throw new BadRequestException("Id không đúng định dạng MongoDB");
     }   
   }
+  // ho so nguoi dung
+  async updateMyProfile(userId: string, data: any, file?: Express.Multer.File) {
+    const { name, phone, address, password } = data; // Tuyệt đối không lấy 'email' và 'role_id' từ data
+
+    // Xử lý ảnh
+    let imageUrl = data.image;
+    if (file) {
+      const uploadResult = await this.uploadService.uploadFile(file);
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const finalUpdateData: any = {};
+    if (name) finalUpdateData.name = name;
+    if (phone) finalUpdateData.phone = phone;
+    if (address) finalUpdateData.address = address;
+    if (imageUrl) finalUpdateData.image = imageUrl;
+
+    // Nếu có nhập mật khẩu mới thì băm ra
+    if (password && password.trim() !== "") {
+      finalUpdateData.password = await hashPasswordHelper(password);
+    }
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $set: finalUpdateData }
+    );
+
+    // Trả về thông tin user mới để Frontend cập nhật Zustand
+    const updatedUser = await this.userModel.findById(userId).populate('role_id').select('-password');
+    return { 
+      success: true, 
+      message: "Cập nhật hồ sơ thành công!",
+      user: updatedUser 
+    };
+  }
   // LUỒNG XÁC THỰC (AUTH) VÀ GỬI MAIL
   async handleRegister(registerDto: CreateAuthDto) {
     const { name, email, password } = registerDto;
@@ -108,7 +199,6 @@ export class UsersService {
     if (await this.isEmailExist(email)) {
       throw new BadRequestException(`Email đã tồn tại: ${email}, vui lòng sử dụng email khác`);
     }
-
     const hashPassword = await hashPasswordHelper(password);
     const codeId = await generateVerificationCode(5); 
     let defaultRole = await this.roleModel.findOne({ role_name: 'user' });
@@ -145,7 +235,7 @@ export class UsersService {
 }
 
   // lay id de kiem tra refresh token
-  async refreshID(id:string){
+  async refreshID(id:string | Types.ObjectId){
     return await this.userModel.findById(id);
   }
 
@@ -201,6 +291,18 @@ export class UsersService {
 
     return { _id: user._id, email: user.email };
   }
+  // kiem tra nhap otp dung hay sai
+  async verifyForgotOTP(data: { email: string; code: string }) {
+    const user = await this.userModel.findOne({ 
+      email: data.email, 
+      codeId: data.code 
+    });
+
+    if (!user) throw new BadRequestException("Mã OTP không hợp lệ hoặc tài khoản không tồn tại");
+    if (dayjs().isAfter(user.codeExpired)) throw new BadRequestException("Mã OTP đã hết hạn");
+
+    return { success: true, message: "Mã OTP hợp lệ" };
+  }
 
   async changePassword(data: changePasswordAuthDto) {
     if (data.password !== data.confirmPassword) {
@@ -225,45 +327,7 @@ export class UsersService {
 
     return { success: true, message: "Thay đổi mật khẩu thành công" };
   }
-  // // login google
-  // async createGoogleUser(profile:any){
-  //   let user = await this.userModel.findOne({googleId: profile.googleId});
-  //   if(!user){
-  //     const existingUser = await this.userModel.findOne({ email: profile.email });
-  //     if (existingUser) {
-  //       throw new BadRequestException(`Email ${profile.email} đã được đăng ký bằng phương thức khác. Vui lòng sử dụng đúng phương thức để đăng nhập!`);
-  //     }
-  //      user = await this.userModel.create({
-  //     name: profile.name,
-  //     email: profile.email,
-  //     image: profile.avatar,
-  //     googleId: profile.googleId,
-  //     provider: 'google',
-  //     isActive: true, // Đăng nhập Google thì tự động kích hoạt luôn
-  //   });
-  //   }
-  //   return user;
-  // }
-  // //login github
-  // async createGithubUser(profile:any){
-  //   let user = await this.userModel.findOne({githubId:profile.githubId});
-  //   if(!user){
-  //     const existingUser = await this.userModel.findOne({email:profile.email});
-  //     if(existingUser){
-  //       throw new BadRequestException(`Email ${profile.email} đã được đăng ký bằng phương thức khác. Vui lòng sử dụng đúng phương thức để đăng nhập!`);
-  //     }
-  //      user = await this.userModel.create({
-  //     name:profile.name,
-  //     email:profile.email,
-  //     image:profile.image,
-  //     githubId:profile.githubId,
-  //     provider: 'github',
-  //     isActive: true, 
-  //   });
-  //   }
-  //   return user;
-  // }
-
+  
   //login bang google+github
   async createOAuthUser(profile: any) {
   const existingUser = await this.userModel.findOne({ email: profile.email });
@@ -277,11 +341,19 @@ export class UsersService {
       `Email ${profile.email} đã được đăng ký bằng phương thức khác!`
     );
   }
+  let defaultRole = await this.roleModel.findOne({ role_name: 'user' });
+    if (!defaultRole) {
+      defaultRole = await this.roleModel.create({
+        role_name: 'user',
+        description: 'Tài khoản người học mặc định',
+      });
+    }
   // Tạo user mới
   return await this.userModel.create({
     name: profile.name,
     email: profile.email,
     image: profile.image,
+    role_id: defaultRole?._id,
     googleId: profile.provider === 'google' ? profile.googleId : undefined,
     githubId: profile.provider === 'github' ? profile.githubId : undefined,
     provider: profile.provider,

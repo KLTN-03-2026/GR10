@@ -680,7 +680,8 @@ export default function ExercisePage() {
   };
 
   const handleReset = () => {
-    if (exercise?.default_code?.[language]) setCode(exercise.default_code[language]);
+    if (exercise?.default_code?.[language])
+      setCode(exercise.default_code[language]);
     else setCode(DEFAULT_CODES[language] || "");
   };
 
@@ -744,9 +745,13 @@ export default function ExercisePage() {
     try {
       const res = await axiosInstance.post(`/submissions/${subId}/ask-ai-tutor`);
       const data: AiTutorResult = res.data;
-      setAiHint(data.ai_hint || data.message || "Gia sư AI không đưa ra gợi ý nào.");
+      setAiHint(
+        data.ai_hint || data.message || "Gia sư AI không đưa ra gợi ý nào.",
+      );
     } catch (err: any) {
-      setAiHint(`Lỗi kết nối API: ${err.response?.data?.message || err.message}`);
+      setAiHint(
+        `Lỗi kết nối API: ${err.response?.data?.message || err.message}`,
+      );
     } finally {
       setIsAiLoading(false);
     }
@@ -1136,7 +1141,7 @@ export default function ExercisePage() {
                 </button>
               ))}
 
-              <div className="flex-1" />
+              <div style={{ flex: 1 }} />
 
               {showAiTutorBtn && (
                 <button
