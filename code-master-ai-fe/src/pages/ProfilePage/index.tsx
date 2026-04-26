@@ -132,9 +132,7 @@ const ProfilePage: React.FC = () => {
                         <div className="md:col-span-2">
                             <label className="mb-2 block text-sm font-semibold text-gray-700">Số điện thoại</label>
                             <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
-                        </div>
-
-                        
+                        </div> 
                     </div>
 
                     <div className="mt-8 flex justify-end">

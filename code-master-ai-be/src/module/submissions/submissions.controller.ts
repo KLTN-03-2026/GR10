@@ -64,7 +64,6 @@ export class SubmissionsController {
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
 
-    // Chuyển toàn bộ việc tính toán xuống Service
     const result = await this.submissionsService.getAllLeadsAdvisories(pageNumber, limitNumber,status);
     
     return {
