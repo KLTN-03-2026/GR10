@@ -21,12 +21,7 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     //Bỏ qua các route auth — không refresh cho những URL này
-    const skipRefreshUrls = [
-      "/auth/refresh",
-      "/auth/login",
-      "/auth/logout",
-      "/",
-    ];
+    const skipRefreshUrls = ["/auth/refresh", "/auth/login", "/auth/logout"];
     const isSkipped = skipRefreshUrls.some((url) =>
       originalRequest.url?.includes(url),
     );
@@ -42,7 +37,9 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (error) {
         useUserInfo.getState().clearUserInfo();
-        window.location.href = "/login";
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
         return Promise.reject(error);
       }
     }

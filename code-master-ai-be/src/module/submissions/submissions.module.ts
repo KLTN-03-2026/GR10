@@ -9,6 +9,8 @@ import { CodeAssignment, CodeAssignmentSchema } from '../code-assignments/entiti
 import { TestCase, TestCaseSchema } from '../testcases/entities/testcase.entity';
 import { AiAssistantModule } from '@/ai-assistant/ai-assistant.module';
 import { UserLessonProgressModule } from '../user-lesson-progress/user-lesson-progress.module';
+import { Course, CourseSchema } from '../courses/entities/course.entity';
+import { Advisory, AdvisorySchema } from './entities/advisory.entity';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { UserLessonProgressModule } from '../user-lesson-progress/user-lesson-pr
       { name: Submission.name, schema: SubmissionSchema },
       { name: CodeAssignment.name, schema: CodeAssignmentSchema },
       { name: TestCase.name, schema: TestCaseSchema },
+      {name:Course.name,schema:CourseSchema},
+      {name:Advisory.name, schema: AdvisorySchema}
     ]),
   ],
   controllers: [SubmissionsController],
