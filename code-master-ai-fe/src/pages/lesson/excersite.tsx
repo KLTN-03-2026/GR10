@@ -673,7 +673,7 @@ export default function ExercisePage() {
       }
     };
     fetchExercise();
-  }, [assignmentId]);
+  }, [assignmentId, language]);
 
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
