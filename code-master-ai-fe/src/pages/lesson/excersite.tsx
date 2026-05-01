@@ -823,7 +823,7 @@ export default function ExercisePage() {
     try {
       const testAssignmentId = "65e000000000000000000001";
       const res = await axiosInstance.post("/submissions/submit", {
-        assignmentId: testAssignmentId,
+        codeassignmentId: testAssignmentId,
         language,
         sourceCode,
       });
