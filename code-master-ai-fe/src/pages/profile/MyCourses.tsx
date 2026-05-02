@@ -8,7 +8,8 @@ export default function MyCourses() {
           Khóa học của tôi
         </h1>
         <p className="text-lg text-[#424842]">
-          Chào mừng bạn quay trở lại, hãy tiếp tục hành trình chinh phục tri thức.
+          Chào mừng bạn quay trở lại, hãy tiếp tục hành trình chinh phục tri
+          thức.
         </p>
       </div>
 
@@ -32,6 +33,7 @@ export default function MyCourses() {
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1498050108023-c5249f4df085"
+                alt=""
                 className="w-full h-52 object-cover"
               />
 
